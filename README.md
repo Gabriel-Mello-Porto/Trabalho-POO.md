@@ -427,7 +427,7 @@ class Hscreen extends JFrame implements ActionListener {
 ```
 
 
-
+## Hselect
 ```java
 import java.awt.*;
 import javax.swing.*;
@@ -449,17 +449,6 @@ class Hselect extends JPanel {
 }
 ```
 
-```java
-import javax.swing.*;
-
-public class Main {
-  public static void main(String[] args) {
-    Mwindows Mwindow = new Mwindows();
-
-    Mwindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-  }
-}
-```
 
 ## Mwindows
 ```java
@@ -539,7 +528,9 @@ class Mwindows extends JFrame implements ActionListener {
   }
 }
 ```
-## Character screen 
+
+
+## Chscreen 
 ```java
 import java.awt.*;
 import java.awt.event.*;
@@ -650,5 +641,19 @@ class ChScreen extends JFrame implements ActionListener {
             points++;
         }
     }
+}
+```
+
+
+## Main
+```java
+import javax.swing.*;
+
+public class Main {
+  public static void main(String[] args) {
+    Mwindows Mwindow = new Mwindows();
+
+    Mwindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+  }
 }
 ```
