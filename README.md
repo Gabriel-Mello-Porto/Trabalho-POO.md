@@ -644,6 +644,214 @@ class ChScreen extends JFrame implements ActionListener {
 }
 ```
 
+## CampoDeBatalha
+
+```java
+import java.awt.*;
+import java.awt.event.*;
+import java.util.ArrayList;
+import java.util.Random;
+import javax.swing.*;
+
+public class CampoDeBatalha extends JFrame implements ActionListener, KeyListener {
+
+    JFrame campoBatalha = new JFrame();
+    JButton[] botoes = new JButton[50];
+    Random aleatorio = new Random();
+
+    // Instancia o heroi (tem que ser baseado na escolha do usuario) e tambem o chefao
+    hero Gunslinger = new Gunslinger(100, 20, 10);
+    BillyTheKid chefao = new BillyTheKid(100, 20, 10);
+
+    // Posicoes
+    int posicaoHeroi = aleatorio.nextInt(9);  // Posicao do heroi aleatoria da linha inicial
+    int posicaoChefao = aleatorio.nextInt(40, 49);  // Posicao do chefao aleatoria da linha final
+
+    // Criacao de vetores para posicoes e inimigos
+    ArrayList<InimigoBasico> vetorInimigos = new ArrayList<InimigoBasico>();
+    ArrayList<Integer> posicoesInimigos = new ArrayList<Integer>();
+    ArrayList<Integer> posicoesArmadilhas = new ArrayList<Integer>();
+
+    // Imagens
+    ImageIcon heroiIcon = new ImageIcon("imgs\\Outlaw.png");
+    ImageIcon indioIcon = new ImageIcon("imgs\\Indio.png");
+    ImageIcon rogueIcon = new ImageIcon("imgs\\Rogue.png");
+    ImageIcon billyIcon = new ImageIcon("imgs\\Billy.png");
+    ImageIcon armadilhaIcon = new ImageIcon("imgs\\Love.jpg");
+    ImageIcon armadilha2Icon = new ImageIcon("imgs\\cacto.png");
+
+
+
+    CampoDeBatalha() {
+        campoBatalha.setLayout(new GridLayout(5, 10)); // Grade com 50
+
+        // Instancia 50 botoes adicionando ao frame e o ActionListener
+        for (int i = 0; i < 50; i++) {
+            botoes[i] = new JButton();
+            botoes[i].addActionListener(this);
+            campoBatalha.add(botoes[i]);
+        }
+
+        // Características do frame
+        campoBatalha.setSize(1366, 768);                 // Dimensoes
+        campoBatalha.setTitle("Everything has a start");        // Titulo
+        campoBatalha.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);  // Fechar ao sair ou clicar em fechar
+        campoBatalha.setResizable(true);                    // Tamanho pode ser modificado
+        campoBatalha.setLocationRelativeTo(null);                   // Começa no centro
+        campoBatalha.setVisible(true);                              // Visível 
+
+        campoBatalha.addKeyListener(this);                            // Adiciona o KeyListener para deteccao de teclas
+        campoBatalha.setFocusable(true);                    // Necessario para que o frame possa capturar eventos de teclado
+
+        // Posiciona heroi e chefao
+        botoes[posicaoHeroi].setIcon(heroiIcon); // Define a imagem do heroi no botão
+        botoes[posicaoChefao].setIcon(billyIcon); // Define a imagem do chefao no botão
+
+        // Cria e distribui inimigos e armadilhas pelo campo
+        distribuirArmadilhas(6);
+        distribuirIndios(3); 
+        distribuirRogues(3);
+        
+        
+    }
+
+    private boolean posicaoNaoEstaLivre(int posicao){
+        // Garante que os inimigos nao fiquem na mesma posicao que o heroi ou entre si
+        if (posicao == posicaoHeroi || posicao == posicaoChefao || posicoesInimigos.contains(posicao) || posicoesArmadilhas.contains(posicao)) {
+            return true;
+        }return false;
+    }
+
+    private void distribuirArmadilhas(int numArmadilhas) {
+        for (int i = 0; i < numArmadilhas; i++) {
+            int posicao;
+            do {
+                posicao = aleatorio.nextInt(50); // Gera uma posicao aleatoria entre 0 e 49
+            } while (posicaoNaoEstaLivre(posicao)); 
+
+            if (i % 2 == 0){
+                posicoesArmadilhas.add(posicao);  // Adiciona a posicao ao vetor de posicoes
+                botoes[posicao].setIcon(armadilhaIcon); // Define a imagem do inimigo no botão da posicao atual
+            }else {
+                posicoesArmadilhas.add(posicao);  // Adiciona a posicao ao vetor de posicoes
+                botoes[posicao].setIcon(armadilha2Icon); // Define a imagem do inimigo no botão da posicao atual
+            }
+            
+            
+        }
+    }
+
+    private void distribuirIndios(int numInimigos) {
+        for (int i = 0; i < numInimigos; i++) {
+            int posicao;
+            do {
+                posicao = aleatorio.nextInt(50); // Gera uma posicao aleatoria entre 0 e 49
+            } while (posicaoNaoEstaLivre(posicao)); 
+
+            InimigoBasico inimigo = new Indio("Indio " + (i + 1), 10, 2, 5); // Instancia os Indios
+            vetorInimigos.add(inimigo);     // Adiciona o inimigo ao vetor de inimigos
+            posicoesInimigos.add(posicao);  // Adiciona a posicao ao vetor de posicoes
+            botoes[posicao].setIcon(indioIcon); // Define a imagem do inimigo no botão da posicao atual
+        }
+    }
+
+    private void distribuirRogues(int numInimigos) {
+        for (int i = 0; i < numInimigos; i++) {
+            int posicao;
+            do {
+                posicao = aleatorio.nextInt(50); // Gera uma posicao aleatoria entre 0 e 49
+            } while (posicaoNaoEstaLivre(posicao)); 
+
+            InimigoBasico inimigo = new Rogue("Rogue " + (i + 1), 10, 2, 5); // Instancia os rogues
+            vetorInimigos.add(inimigo);     // Adiciona o inimigo ao vetor de inimigos
+            posicoesInimigos.add(posicao);  // Adiciona a posicao ao vetor de posicoes
+            botoes[posicao].setIcon(rogueIcon); // Define a imagem do inimigo no botão da posicao atual
+        }
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        for (int i = 0; i < 50; i++) {
+            if (e.getSource() == botoes[i]) {
+                System.out.println("Botao " + i + " pressionado");
+            }
+        }
+    }
+
+    // Funcao para movimentar o heroi
+    @Override
+    public void keyPressed(KeyEvent e) {
+        int keyCode = e.getKeyCode();
+
+        botoes[posicaoHeroi].setIcon(null); // Remove a imagem do heroi do botao anterior
+
+        // Os ifs garantem que o heroi nao vai sair para fora do campoBatalha
+        switch (keyCode) {
+            case KeyEvent.VK_UP:
+                if (posicaoHeroi >= 10) {
+                    posicaoHeroi -= 10;
+                }
+                break;
+            case KeyEvent.VK_DOWN:
+                if (posicaoHeroi < 40) {
+                    posicaoHeroi += 10;
+                }
+                break;
+            case KeyEvent.VK_LEFT:
+                if (posicaoHeroi % 10 != 0) {
+                    posicaoHeroi -= 1;
+                }
+                break;
+            case KeyEvent.VK_RIGHT:
+                if (posicaoHeroi % 10 != 9) {
+                    posicaoHeroi += 1;
+                } 
+                break;
+        }
+
+        if (posicoesInimigos.contains(posicaoHeroi)) {
+            interagir();
+        } else {
+            botoes[posicaoHeroi].setIcon(heroiIcon); // Atualiza a posicao do heroi com a imagem
+        }
+    }
+
+    // Implementa a logica de interacao entre heroi e inimigo (Problema para o futuro)
+    private void interagir() {
+        JOptionPane.showMessageDialog(this, "O Herói encontrou um Inimigo! Começa a batalha!");
+
+        // Simula um combate simples
+        while (Gunslinger.getHp() > 0 && vetorInimigos.get(posicoesInimigos.indexOf(posicaoHeroi)).getHp() > 0) {
+            InimigoBasico inimigo = vetorInimigos.get(posicoesInimigos.indexOf(posicaoHeroi));
+            inimigo.setHp(inimigo.getHp() - Gunslinger.getAtk());
+            if (inimigo.getHp() > 0) {
+                Gunslinger.setHp(Gunslinger.getHp() - inimigo.getAtk());
+            }
+        }
+
+        if (Gunslinger.getHp() > 0) {
+            JOptionPane.showMessageDialog(this, "O Herói derrotou o Inimigo!");
+            botoes[posicaoHeroi].setIcon(heroiIcon); // O heroi ocupa o lugar do inimigo derrotado
+        } else {
+            JOptionPane.showMessageDialog(this, "O Herói foi derrotado...");
+        }
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+        // Nao utilizado
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) {
+        // Nao utilizado
+    }
+
+    public static void main(String[] args) {
+        new CampoDeBatalha();
+    }
+}
+```
 
 ## Main
 ```java
