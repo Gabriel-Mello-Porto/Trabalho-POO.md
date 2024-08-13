@@ -2,10 +2,13 @@
 
 ## Hero
 ```java
+import javax.swing.*;
+
 abstract class Hero {
     private int hp;
     private int atk;
     private int def;
+    private ImageIcon portrait;
 
   
     public Hero(int hp, int atk, int def){
@@ -41,34 +44,39 @@ abstract class Hero {
 
     // skill
     public abstract boolean useSkill();
+
+    public ImageIcon getPortrait(){
+        return portrait;
+    }
 }
+
 ```
 ### Gunslinger
 ```java
 import javax.swing.*;
 
-class Gunslinger extends hero{
+class Gunslinger extends Hero {
 
-  ImageIcon portrait=new ImageIcon("src/imgs/Gunslinger.png");
-  private boolean skill=true;
+    ImageIcon portrait = new ImageIcon("src/imgs/Gunslinger.png");
+    private boolean skill = true;
 
-  public Gunslinger(int hp, int atk, int def){
-        super(10,3,2);
-  }
+    public Gunslinger(int hp, int atk, int def) {
+        super(10, 3, 2);
+    }
 
-  //skill
-  @Override
-  public boolean useSkill() {
-      if (skill) {
-          skill = false;
-          return true;   
-      }
-      return false;
-  }
+    // skill
+    @Override
+    public boolean useSkill() {
+        if (skill) {
+            skill = false;
+            return true;
+        }
+        return false;
+    }
 
-  public ImageIcon getPortrait() {
-      return portrait;
-  }
+    public ImageIcon getPortrait() {
+        return portrait;
+    }
 }
 ```
 
@@ -217,7 +225,7 @@ public class Indio extends InimigoBasico {
 ```java
 import javax.swing.ImageIcon;
 
-public class BillyTheKid {
+public class BillyTheKid{
 
     ImageIcon portrait = new ImageIcon("");
 
@@ -257,7 +265,28 @@ public class BillyTheKid {
 }
 ```
 
+## changebackground
 
+```java
+import java.awt.*;
+import javax.swing.*;
+
+class changebackground extends JPanel {
+    private Image backgroundImage;
+
+
+    public changebackground(String imagePath) {
+        backgroundImage = new ImageIcon("src/imgs/Upgradescreen2.png").getImage();
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        // Imagem de fundo
+        g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+    }
+}
+```
 
 
 
@@ -540,31 +569,34 @@ import javax.swing.border.EmptyBorder;
 class ChScreen extends JFrame implements ActionListener {
 
     // botões
-    //hp + -
     private JButton hpp;
     private JButton hpm;
 
-    // atk + -
-    private JButton atkp;       
+    private JButton atkp;
     private JButton atkm;
 
-    // def + -
     private JButton defp;
     private JButton defm;
 
-    //imagem de personagem
-    private JLabel Lportrait;
+    private JButton Bconfirm;
 
-    private hero character;
+    private JLabel heroname;
+    private JLabel infohp;
+    private JLabel infoatk;
+    private JLabel infodef;
+    private JLabel pointsLabel;
+
+    private ImageIcon picture;
+
+    private Hero character;
 
     public int points = 10;
-    
 
-    public ChScreen(hero character){
+    public ChScreen(Hero character) {
         super("Character Customization");
-        this.character=character;
+        this.character = character;
 
-        // icone da janela
+        // icone de janela
         ImageIcon icon = new ImageIcon("src/imgs/WWC2icon.png");
         setIconImage(icon.getImage());
 
@@ -572,17 +604,34 @@ class ChScreen extends JFrame implements ActionListener {
         setSize(800, 480);
         setLayout(new BorderLayout());
 
-        Hselect backimg = new Hselect("src/imgs/src/imgs/Upgradescreen.png");
+        changebackground backimg = new changebackground("src/imgs/Upgradescreen2.png");
+        backimg.setLayout(null);
 
-        //inicialização
+        Dimension buttonSize = new Dimension(80, 30);
+
+        // inicialização
         hpp = new JButton("HP+");
-        hpm = new JButton("HP-");
-        atkp = new JButton("ATK+");
-        atkm = new JButton("ATK-");
-        defp = new JButton("DEF+");
-        defm = new JButton("DEF-");
+        hpp.setSize(buttonSize);
 
-        //listeners
+        hpm = new JButton("HP-");
+        hpm.setSize(buttonSize);
+
+        atkp = new JButton("ATK+");
+        atkp.setSize(buttonSize);
+
+        atkm = new JButton("ATK-");
+        atkm.setSize(buttonSize);
+
+        defp = new JButton("DEF+");
+        defp.setSize(buttonSize);
+
+        defm = new JButton("DEF-");
+        defm.setSize(buttonSize);
+
+        Bconfirm = new JButton("Confirm");
+        Bconfirm.setSize(100, 30);
+
+        // listeners
         hpp.addActionListener(this);
         hpm.addActionListener(this);
         atkp.addActionListener(this);
@@ -590,35 +639,66 @@ class ChScreen extends JFrame implements ActionListener {
         defp.addActionListener(this);
         defm.addActionListener(this);
 
-        //mostrar a foto do personagem;
-        Lportrait = new JLabel(character.getPortrait());
+        // labels
+        String name = character.getClass().getSimpleName();
+        heroname = new JLabel("" + name);
+        heroname.setForeground(Color.BLACK);
 
-        //painel de botões
-        JPanel buttonPanel = new JPanel(new GridLayout(3,2,30,100));
+        infohp = new JLabel("HP: " + character.getHp(), SwingConstants.CENTER);
+        infohp.setForeground(Color.BLACK);
+
+        infoatk = new JLabel("ATK: " + character.getAtk(), SwingConstants.CENTER);
+        infoatk.setForeground(Color.BLACK);
+
+        infodef = new JLabel("DEF: " + character.getDef(), SwingConstants.CENTER);
+        infodef.setForeground(Color.BLACK);
+
+        pointsLabel = new JLabel("Points Left: " + points, SwingConstants.CENTER);
+        pointsLabel.setForeground(Color.BLACK);
+
+        // imagem de personagem
+        picture = scaleImageIcon(character);
+        JLabel Lportrait = new JLabel(picture);
+        // posição e tamanho da imagem
+        Lportrait.setBounds(446, 90, 200, 200);
+
+        // painel de botões
+        JPanel buttonPanel = new JPanel(new GridLayout(4, 2, 20, 20));
         buttonPanel.setOpaque(false);
-        buttonPannel.setBorder(new EmptyBorder(30,30,0,0));
+        buttonPanel.setBounds(60, 80, 250, 300);
 
-        //botões para o painel
-        buttonPanel.add(hpp);      //1
-        buttonPanel.add(hpm);     //2
-        buttonPanel.add(atkp);     //1
-        buttonPanel.add(atkm);     //2
-        buttonPanel.add(defp);     //1
-        buttonPanel.add(defm);     //2
+        // Adding buttons and labels to the button panel
+        buttonPanel.add(hpm);
+        buttonPanel.add(infohp);
+        buttonPanel.add(hpp);
 
-        //adicionando os elementos na tela
-        backimg.setLayout(new BorderLayout());
-        backimg.add(buttonPanel, BorderLayout.WEST);  
-        backimg.add(Lportrait, BorderLayout.EAST);
+        buttonPanel.add(atkm);
+        buttonPanel.add(infoatk);
+        buttonPanel.add(atkp);
 
-        //adicionando a imagem
+        buttonPanel.add(defm);
+        buttonPanel.add(infodef);
+        buttonPanel.add(defp);
+
+        // posição do confirm
+        Bconfirm.setBounds(140, 380, 100, 30);
+        // posição dos labels
+        pointsLabel.setBounds(60, 300, 250, 30);
+        heroname.setBounds(146, 55, 250, 30);
+
+        // adicionando elementos na tela
+        backimg.add(buttonPanel);
+        backimg.add(Bconfirm);
+        backimg.add(Lportrait);
+        backimg.add(pointsLabel);
+        backimg.add(heroname);
+
+        // imagem de fundo
         tela.add(backimg, BorderLayout.CENTER);
 
         setVisible(true);
     }
 
-    //mar de if's para cada botão
-    //
     @Override
     public void actionPerformed(ActionEvent action) {
         if (action.getSource() == hpp && points > 0) {
@@ -639,7 +719,28 @@ class ChScreen extends JFrame implements ActionListener {
         } else if (action.getSource() == defm && character.getDef() > 0) {
             character.setDef(character.getDef() - 1);
             points++;
+        } else if (action.getSource() == Bconfirm) {
+
+            // arrumar a abertura do campo de batalha
+            CampoDeBatalha CampoDeBatalha = new CampoDeBatalha();
+            CampoDeBatalha.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         }
+        updater();
+        
+    }
+
+    private void updater() {
+        infohp.setText("HP: " + character.getHp());
+        infoatk.setText("ATK: " + character.getAtk());
+        infodef.setText("DEF: " + character.getDef());
+        pointsLabel.setText("Points Left: " + points);
+    }
+
+    private ImageIcon scaleImageIcon(Hero chara) {
+        ImageIcon imgbuf = new ImageIcon(chara.getPortrait().getImage());
+        Image img = imgbuf.getImage();
+        Image scaledImg = img.getScaledInstance(200, 200, Image.SCALE_SMOOTH);
+        return new ImageIcon(scaledImg);
     }
 }
 ```
@@ -660,7 +761,7 @@ public class CampoDeBatalha extends JFrame implements ActionListener, KeyListene
     Random aleatorio = new Random();
 
     // Instancia o heroi (tem que ser baseado na escolha do usuario) e tambem o chefao
-    Hero heroi = new Gunslinger(100, 20, 10);
+    Hero heroi = new Gunslinger(100, 15, 1);
     BillyTheKid chefao = new BillyTheKid(100, 20, 10);
 
     // Posicoes
@@ -681,7 +782,7 @@ public class CampoDeBatalha extends JFrame implements ActionListener, KeyListene
     ImageIcon armadilhaPesadaIcon = new ImageIcon("imgs\\Beartrap.png");
     ImageIcon armadilhaLeveIcon = new ImageIcon("imgs\\Cacto.png");
 
-    
+
 
     CampoDeBatalha() {
         campoBatalha.setLayout(new GridLayout(5, 10)); // Grade com 50
@@ -691,6 +792,10 @@ public class CampoDeBatalha extends JFrame implements ActionListener, KeyListene
             botoes[i] = new JButton();
             botoes[i].addActionListener(this);
             campoBatalha.add(botoes[i]);
+            // Deixa os botoes invisiveis (para colocar uma imagem de fundo)
+            //botoes[i].setOpaque(false);
+            //botoes[i].setContentAreaFilled(false);
+            //botoes[i].setBorderPainted(false);
         }
 
         // Características do frame
@@ -700,7 +805,7 @@ public class CampoDeBatalha extends JFrame implements ActionListener, KeyListene
         campoBatalha.setResizable(true);                    // Tamanho pode ser modificado
         campoBatalha.setLocationRelativeTo(null);                   // Começa no centro
         campoBatalha.setVisible(true);                              // Visível 
-        
+
         campoBatalha.addKeyListener(this);                            // Adiciona o KeyListener para deteccao de teclas
         campoBatalha.setFocusable(true);                    // Necessario para que o frame possa capturar eventos de teclado
 
@@ -713,12 +818,12 @@ public class CampoDeBatalha extends JFrame implements ActionListener, KeyListene
         distribuirArmadilhasLeves(3);
         distribuirIndios(3); 
         distribuirRogues(3);
-        
-        
+
+
     }
 
     private boolean posicaoNaoEstaLivre(int posicao){
-        // Garante que os inimigos nao fiquem na mesma posicao que o heroi ou entre si
+        // Garante que os inimigos nao fiquem na mesma posicao que o heroi ou entre si, ou entre armadilhas
         if (posicao == posicaoHeroi || posicao == posicaoChefao || posicoesInimigos.contains(posicao) || posicoesArmadilhasLeves.contains(posicao) || posicoesArmadilhasPesadas.contains(posicao)) {
             return true;
         }return false;
@@ -784,7 +889,7 @@ public class CampoDeBatalha extends JFrame implements ActionListener, KeyListene
             }
         }
     }
-    
+
     @Override // Funcao para movimentar o heroi e o comeco das interacoes
     public void keyPressed(KeyEvent e) {
         int keyCode = e.getKeyCode();
@@ -831,7 +936,7 @@ public class CampoDeBatalha extends JFrame implements ActionListener, KeyListene
         else {
             botoes[posicaoHeroi].setIcon(heroiIcon); // Caso contrario so atualiza a posicao do heroi com a imagem
         }
-        
+
     }
 
     @Override
@@ -846,23 +951,15 @@ public class CampoDeBatalha extends JFrame implements ActionListener, KeyListene
 
     // Implementa a logica de interacao entre heroi e inimigo (Problema para o futuro)
     private void combateInimigoBasico() {
-        JOptionPane.showMessageDialog(this, "O Herói encontrou um Inimigo! Começa a batalha!");
 
-        // Simula um combate simples
-        while (heroi.getHp() > 0 && vetorInimigos.get(posicoesInimigos.indexOf(posicaoHeroi)).getHp() > 0) {
-            InimigoBasico inimigo = vetorInimigos.get(posicoesInimigos.indexOf(posicaoHeroi));
-            inimigo.setHp(inimigo.getHp() - heroi.getAtk());
-            if (inimigo.getHp() > 0) {
-                heroi.setHp(heroi.getHp() - inimigo.getAtk());
-            }
-        }
+        int indiceInimigoAtual = posicoesInimigos.indexOf(posicaoHeroi);  // Pega o indice do inimigo atual na lista
+        InimigoBasico inimigoAtual = vetorInimigos.get(indiceInimigoAtual); // Pega o mesmo inimigo que o heroi encontrou
 
-        if (heroi.getHp() > 0) {
-            JOptionPane.showMessageDialog(this, "O Herói derrotou o Inimigo!");
-            botoes[posicaoHeroi].setIcon(heroiIcon); // O heroi ocupa o lugar do inimigo derrotado
-        } else {
-            JOptionPane.showMessageDialog(this, "O Herói foi derrotado...");
-        }
+        new JanelaCombate(heroi, inimigoAtual); // Abre a nova janela de combate
+
+        posicoesInimigos.remove(indiceInimigoAtual);  // Remove a posicao do inimigo derrotado
+        vetorInimigos.remove(indiceInimigoAtual);     // Remove o inimigo derrotado do vetorInimigos
+        botoes[posicaoHeroi].setIcon(heroiIcon);      // Atualiza o icone do heroi
     }
 
     // Combate com chefao (nao feito) (provavelmente vai ter que ser em uma tela nova)
@@ -899,9 +996,170 @@ public class CampoDeBatalha extends JFrame implements ActionListener, KeyListene
         heroi.setHp(heroi.getHp() - 1);
         System.out.printf("hp apos da armadilha leve " + heroi.getHp() + "\n\n");
     }
+}
+```
+## JanelaCombate
+```java
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Random;
+import javax.swing.*;
 
-    public static void main(String[] args) {
-        new CampoDeBatalha();
+public class JanelaCombate extends JFrame {
+    private Hero heroi;
+    private InimigoBasico inimigoAtual;
+    private JLabel lblHeroHp, lblHeroAtk, lblHeroDef; // Labels para exibir stats do heroi
+    private JLabel lblInimigoHp, lblInimigoAtk, lblInimigoDef; // Labels para exibir stats do inimigo
+
+    public JanelaCombate(Hero heroi, InimigoBasico inimigo) {
+        this.heroi = heroi;
+        this.inimigoAtual = inimigo;
+
+        // Caracteristicas da janela de combate
+        setTitle("Combate com " + inimigoAtual.getNome()); // Titulo
+        setSize(400, 300); // Dimensoes
+        setLayout(new GridLayout(5, 2)); // Formato
+
+        // Inicializa os labels dos stats do heroi e do inimigo
+        lblHeroHp = new JLabel("HP do Heroi: " + heroi.getHp());
+        lblHeroAtk = new JLabel("Atk do Heroi: " + heroi.getAtk());
+        lblHeroDef = new JLabel("Def do Heroi: " + heroi.getDef());
+        lblInimigoHp = new JLabel("HP do Inimigo: " + inimigo.getHp());
+        lblInimigoAtk = new JLabel("Atk do Inimigo: " + inimigo.getAtk());
+        lblInimigoDef = new JLabel("Def do Inimigo: " + inimigo.getDef());
+
+        // Botao Atacar + ActionListener
+        JButton botaoAtacar = new JButton("Atacar");
+        botaoAtacar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                combate();
+            }
+        });
+
+        // Botao Beber Whisky + ActionListener
+        JButton botaoWhisky = new JButton("Beber Whisky");
+        botaoWhisky.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                heroi.setHp(heroi.getHp() + 20); // Recupera 20 de HP, por exemplo
+                atualizarStatusDaTela(); // Atualiza a interface com o novo valor de HP
+                JOptionPane.showMessageDialog(null, "Você bebeu whisky e recuperou 20 HP!");
+            }
+        });
+
+        // Botao usarHabilidadeEspecial + ActionListener
+        JButton botaoHabilidadeEspecial = new JButton("Usar Habilidade Especial");
+        botaoHabilidadeEspecial.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JOptionPane.showMessageDialog(null, "Você usou sua Habilidade Especial!");
+            }
+        });
+
+        // Botao botaFugir + ActionListener
+        JButton botaFugir = new JButton("Fugir");
+        botaFugir.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JOptionPane.showMessageDialog(null,
+                        "Você saiu correndo e acabou tropeçando, sofrendo 3 de dano no processo... seu covarde!");
+                heroi.setHp(heroi.getHp() - 3);
+                dispose(); // Fecha a janela de combate
+            }
+        });
+
+        // Adiciona os componentes na janela
+        add(lblHeroHp);
+        add(lblInimigoHp);
+        add(lblHeroAtk);
+        add(lblInimigoAtk);
+        add(lblHeroDef);
+        add(lblInimigoDef);
+        add(botaoAtacar);
+        add(botaoWhisky);
+        add(botaoHabilidadeEspecial);
+        add(botaFugir);
+
+        // Mais caracteristicas da janela de combate
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // So fecha essa janela e nao toda o jogo
+        setLocationRelativeTo(null); // Começa no centro
+        setFocusable(true); // Tira a 'sombra' do botao (tambem deve fazer mais alguma coisa que nao sei)
+        setVisible(true); // Visivel
+    }
+
+    // Logica de combate
+    private void combate() {
+
+        Random aleatorio = new Random();
+
+        // Calculos para o combate
+        int atkTotal = heroi.getAtk() + aleatorio.nextInt(10);
+        int defTotal = inimigoAtual.getDef() + aleatorio.nextInt(10);
+        int diferenca = atkTotal - defTotal;
+
+        // Inimigo recebendo o ataque
+        if (defTotal > atkTotal) {
+            JOptionPane.showMessageDialog(this, "O inimigo defendou todo o seu ataque!!!");
+        } else {
+            JOptionPane.showMessageDialog(this, "Voce infligiu " + diferenca + " de dano.");
+            inimigoAtual.setHp((inimigoAtual.getHp() - diferenca)); // Atualiza a vida do inimigo
+        }
+
+        // Se o inimigo nao estiver vido
+        if (inimigoAtual.getHp() <= 0) {
+
+            int recompensaAleatoria = aleatorio.nextInt(3);
+
+            // Concede ao heroi um atributo aleatorio
+            switch (recompensaAleatoria) {
+                case 0:
+                    heroi.setHp(heroi.getHp() + 1);
+                    JOptionPane.showMessageDialog(this, "Voce venceu a batalha e recebeu um ponto de HP");
+                    break;
+                case 1:
+                    heroi.setAtk(heroi.getAtk() + 1);
+                    JOptionPane.showMessageDialog(this, "Voce venceu a batalha e recebeu um ponto de Atk");
+                    break;
+                case 2:
+                    heroi.setDef(heroi.getDef() + 1);
+                    JOptionPane.showMessageDialog(this, "Voce venceu a batalha e recebeu um ponto de Def");
+                    break;
+                default:
+                    System.out.println("Erro dentro do switch!");
+                    throw new AssertionError();
+            }
+
+            dispose(); // Fecha a janela de combate
+        } else {
+            atkTotal = inimigoAtual.getAtk() + aleatorio.nextInt(10);
+            defTotal = heroi.getDef() + aleatorio.nextInt(10);
+            diferenca = atkTotal - defTotal;
+
+            // Mesma logica de combate de antes mas agora com o heroi recebendo o ataque
+            if (defTotal > atkTotal) {
+                JOptionPane.showMessageDialog(this, "Voce defendou completamente o ataque do inimigo!!!");
+            } else {
+                JOptionPane.showMessageDialog(this, "Voce sofreu " + diferenca + " de dano.");
+                heroi.setHp((heroi.getHp() - diferenca)); // Atualiza a vida do inimigo
+            }
+        }
+
+        // Caso o heroi tenha morrido
+        if (heroi.getHp() <= 0) {
+            JOptionPane.showMessageDialog(this, "Seu HP chegou em 0, voce perdeu!\n                       :(");
+            dispose(); // Fecha a janela de combate
+        }
+
+        // Refresh na tela de status
+        atualizarStatusDaTela();
+    }
+
+    // Atualiza labels de HP na janela
+    private void atualizarStatusDaTela() {
+        lblHeroHp.setText("HP do Heroi: " + heroi.getHp());
+        lblInimigoHp.setText("Hp do Inimigo: " + inimigoAtual.getHp());
     }
 }
 ```
@@ -913,8 +1171,8 @@ import javax.swing.*;
 public class Main {
   public static void main(String[] args) {
     Mwindows Mwindow = new Mwindows();
-
     Mwindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    //new CampoDeBatalha();
   }
 }
 ```
