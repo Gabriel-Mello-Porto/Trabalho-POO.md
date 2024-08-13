@@ -2,13 +2,13 @@
 
 ## Hero
 ```java
-abstract class hero {
+abstract class Hero {
     private int hp;
     private int atk;
     private int def;
 
   
-    public hero(int hp, int atk, int def){
+    public Hero(int hp, int atk, int def){
       this.hp = hp;
       this.atk = atk;
       this.def = def;
@@ -660,7 +660,7 @@ public class CampoDeBatalha extends JFrame implements ActionListener, KeyListene
     Random aleatorio = new Random();
 
     // Instancia o heroi (tem que ser baseado na escolha do usuario) e tambem o chefao
-    hero Gunslinger = new Gunslinger(100, 20, 10);
+    Hero heroi = new Gunslinger(100, 20, 10);
     BillyTheKid chefao = new BillyTheKid(100, 20, 10);
 
     // Posicoes
@@ -670,17 +670,18 @@ public class CampoDeBatalha extends JFrame implements ActionListener, KeyListene
     // Criacao de vetores para posicoes e inimigos
     ArrayList<InimigoBasico> vetorInimigos = new ArrayList<InimigoBasico>();
     ArrayList<Integer> posicoesInimigos = new ArrayList<Integer>();
-    ArrayList<Integer> posicoesArmadilhas = new ArrayList<Integer>();
+    ArrayList<Integer> posicoesArmadilhasLeves = new ArrayList<Integer>();
+    ArrayList<Integer> posicoesArmadilhasPesadas = new ArrayList<Integer>();
 
     // Imagens
     ImageIcon heroiIcon = new ImageIcon("imgs\\Outlaw.png");
     ImageIcon indioIcon = new ImageIcon("imgs\\Indio.png");
     ImageIcon rogueIcon = new ImageIcon("imgs\\Rogue.png");
     ImageIcon billyIcon = new ImageIcon("imgs\\Billy.png");
-    ImageIcon armadilhaIcon = new ImageIcon("imgs\\Love.jpg");
-    ImageIcon armadilha2Icon = new ImageIcon("imgs\\cacto.png");
+    ImageIcon armadilhaPesadaIcon = new ImageIcon("imgs\\Beartrap.png");
+    ImageIcon armadilhaLeveIcon = new ImageIcon("imgs\\Cacto.png");
 
-
+    
 
     CampoDeBatalha() {
         campoBatalha.setLayout(new GridLayout(5, 10)); // Grade com 50
@@ -693,13 +694,13 @@ public class CampoDeBatalha extends JFrame implements ActionListener, KeyListene
         }
 
         // Características do frame
-        campoBatalha.setSize(1366, 768);                 // Dimensoes
+        campoBatalha.setSize(800, 700);                  // Dimensoes
         campoBatalha.setTitle("Everything has a start");        // Titulo
         campoBatalha.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);  // Fechar ao sair ou clicar em fechar
         campoBatalha.setResizable(true);                    // Tamanho pode ser modificado
         campoBatalha.setLocationRelativeTo(null);                   // Começa no centro
         campoBatalha.setVisible(true);                              // Visível 
-
+        
         campoBatalha.addKeyListener(this);                            // Adiciona o KeyListener para deteccao de teclas
         campoBatalha.setFocusable(true);                    // Necessario para que o frame possa capturar eventos de teclado
 
@@ -708,7 +709,8 @@ public class CampoDeBatalha extends JFrame implements ActionListener, KeyListene
         botoes[posicaoChefao].setIcon(billyIcon); // Define a imagem do chefao no botão
 
         // Cria e distribui inimigos e armadilhas pelo campo
-        distribuirArmadilhas(6);
+        distribuirArmadilhasPesadas(3);
+        distribuirArmadilhasLeves(3);
         distribuirIndios(3); 
         distribuirRogues(3);
         
@@ -717,27 +719,32 @@ public class CampoDeBatalha extends JFrame implements ActionListener, KeyListene
 
     private boolean posicaoNaoEstaLivre(int posicao){
         // Garante que os inimigos nao fiquem na mesma posicao que o heroi ou entre si
-        if (posicao == posicaoHeroi || posicao == posicaoChefao || posicoesInimigos.contains(posicao) || posicoesArmadilhas.contains(posicao)) {
+        if (posicao == posicaoHeroi || posicao == posicaoChefao || posicoesInimigos.contains(posicao) || posicoesArmadilhasLeves.contains(posicao) || posicoesArmadilhasPesadas.contains(posicao)) {
             return true;
         }return false;
     }
 
-    private void distribuirArmadilhas(int numArmadilhas) {
+    private void distribuirArmadilhasPesadas(int numArmadilhas) {
         for (int i = 0; i < numArmadilhas; i++) {
             int posicao;
             do {
                 posicao = aleatorio.nextInt(50); // Gera uma posicao aleatoria entre 0 e 49
             } while (posicaoNaoEstaLivre(posicao)); 
 
-            if (i % 2 == 0){
-                posicoesArmadilhas.add(posicao);  // Adiciona a posicao ao vetor de posicoes
-                botoes[posicao].setIcon(armadilhaIcon); // Define a imagem do inimigo no botão da posicao atual
-            }else {
-                posicoesArmadilhas.add(posicao);  // Adiciona a posicao ao vetor de posicoes
-                botoes[posicao].setIcon(armadilha2Icon); // Define a imagem do inimigo no botão da posicao atual
-            }
-            
-            
+            posicoesArmadilhasPesadas.add(posicao);  // Adiciona a posicao ao vetor de posicoes
+            botoes[posicao].setIcon(armadilhaPesadaIcon);  // Define a imagem da armadilha no botão da posicao atual
+        }
+    }
+
+    private void distribuirArmadilhasLeves(int numArmadilhas) {
+        for (int i = 0; i < numArmadilhas; i++) {
+            int posicao;
+            do {
+                posicao = aleatorio.nextInt(50); // Gera uma posicao aleatoria entre 0 e 49
+            } while (posicaoNaoEstaLivre(posicao)); 
+
+            posicoesArmadilhasLeves.add(posicao);  // Adiciona a posicao ao vetor de posicoes
+            botoes[posicao].setIcon(armadilhaLeveIcon); // Define a imagem da armadilha no botão da posicao atual
         }
     }
 
@@ -777,9 +784,8 @@ public class CampoDeBatalha extends JFrame implements ActionListener, KeyListene
             }
         }
     }
-
-    // Funcao para movimentar o heroi
-    @Override
+    
+    @Override // Funcao para movimentar o heroi e o comeco das interacoes
     public void keyPressed(KeyEvent e) {
         int keyCode = e.getKeyCode();
 
@@ -809,32 +815,23 @@ public class CampoDeBatalha extends JFrame implements ActionListener, KeyListene
                 break;
         }
 
+        // Interagi de acordo com o que o heroi entrou em contato
         if (posicoesInimigos.contains(posicaoHeroi)) {
-            interagir();
-        } else {
-            botoes[posicaoHeroi].setIcon(heroiIcon); // Atualiza a posicao do heroi com a imagem
+            combateInimigoBasico();
+        } 
+        else if (posicaoChefao == posicaoHeroi) {
+            combateChefao();
+        } 
+        else if (posicoesArmadilhasPesadas.contains(posicaoHeroi)) {
+            danoArmadilhaPesada();
+        } 
+        else if (posicoesArmadilhasLeves.contains((posicaoHeroi))) {
+            danoArmadilhaLeve();
         }
-    }
-
-    // Implementa a logica de interacao entre heroi e inimigo (Problema para o futuro)
-    private void interagir() {
-        JOptionPane.showMessageDialog(this, "O Herói encontrou um Inimigo! Começa a batalha!");
-
-        // Simula um combate simples
-        while (Gunslinger.getHp() > 0 && vetorInimigos.get(posicoesInimigos.indexOf(posicaoHeroi)).getHp() > 0) {
-            InimigoBasico inimigo = vetorInimigos.get(posicoesInimigos.indexOf(posicaoHeroi));
-            inimigo.setHp(inimigo.getHp() - Gunslinger.getAtk());
-            if (inimigo.getHp() > 0) {
-                Gunslinger.setHp(Gunslinger.getHp() - inimigo.getAtk());
-            }
+        else {
+            botoes[posicaoHeroi].setIcon(heroiIcon); // Caso contrario so atualiza a posicao do heroi com a imagem
         }
-
-        if (Gunslinger.getHp() > 0) {
-            JOptionPane.showMessageDialog(this, "O Herói derrotou o Inimigo!");
-            botoes[posicaoHeroi].setIcon(heroiIcon); // O heroi ocupa o lugar do inimigo derrotado
-        } else {
-            JOptionPane.showMessageDialog(this, "O Herói foi derrotado...");
-        }
+        
     }
 
     @Override
@@ -845,6 +842,62 @@ public class CampoDeBatalha extends JFrame implements ActionListener, KeyListene
     @Override
     public void keyTyped(KeyEvent e) {
         // Nao utilizado
+    }
+
+    // Implementa a logica de interacao entre heroi e inimigo (Problema para o futuro)
+    private void combateInimigoBasico() {
+        JOptionPane.showMessageDialog(this, "O Herói encontrou um Inimigo! Começa a batalha!");
+
+        // Simula um combate simples
+        while (heroi.getHp() > 0 && vetorInimigos.get(posicoesInimigos.indexOf(posicaoHeroi)).getHp() > 0) {
+            InimigoBasico inimigo = vetorInimigos.get(posicoesInimigos.indexOf(posicaoHeroi));
+            inimigo.setHp(inimigo.getHp() - heroi.getAtk());
+            if (inimigo.getHp() > 0) {
+                heroi.setHp(heroi.getHp() - inimigo.getAtk());
+            }
+        }
+
+        if (heroi.getHp() > 0) {
+            JOptionPane.showMessageDialog(this, "O Herói derrotou o Inimigo!");
+            botoes[posicaoHeroi].setIcon(heroiIcon); // O heroi ocupa o lugar do inimigo derrotado
+        } else {
+            JOptionPane.showMessageDialog(this, "O Herói foi derrotado...");
+        }
+    }
+
+    // Combate com chefao (nao feito) (provavelmente vai ter que ser em uma tela nova)
+    private void combateChefao() {
+        JOptionPane.showMessageDialog(this, "O Herói encontrou um Inimigo! Começa a batalha!");
+
+        // Simula um combate simples
+        while (heroi.getHp() > 0 && vetorInimigos.get(posicoesInimigos.indexOf(posicaoHeroi)).getHp() > 0) {
+            InimigoBasico inimigo = vetorInimigos.get(posicoesInimigos.indexOf(posicaoHeroi));
+            inimigo.setHp(inimigo.getHp() - heroi.getAtk());
+            if (inimigo.getHp() > 0) {
+                heroi.setHp(heroi.getHp() - inimigo.getAtk());
+            }
+        }
+
+        if (heroi.getHp() > 0) {
+            JOptionPane.showMessageDialog(this, "O Herói derrotou o Inimigo!");
+            botoes[posicaoHeroi].setIcon(heroiIcon); // O heroi ocupa o lugar do inimigo derrotado
+        } else {
+            JOptionPane.showMessageDialog(this, "O Herói foi derrotado...");
+        }
+    }
+
+    // -1 de hp ao contato
+    private void danoArmadilhaPesada() {
+        System.out.println("hp antes da armadilha pesada " + heroi.getHp());
+        heroi.setHp(heroi.getHp() - aleatorio.nextInt(5));
+        System.out.printf("hp apos da armadilha pesada " + heroi.getHp() + "\n\n");
+    }
+
+    // -0 ate -5 de hp ao contato
+    private void danoArmadilhaLeve() {
+        System.out.println("hp antes da armadilha leve " + heroi.getHp());
+        heroi.setHp(heroi.getHp() - 1);
+        System.out.printf("hp apos da armadilha leve " + heroi.getHp() + "\n\n");
     }
 
     public static void main(String[] args) {
