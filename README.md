@@ -787,7 +787,7 @@ public class CampoDeBatalha extends JFrame implements ActionListener, KeyListene
     CampoDeBatalha() {
         campoBatalha.setLayout(new GridLayout(5, 10)); // Grade com 50
 
-        // Instancia 50 botoes adicionando ao frame e o ActionListener
+        // Instancia 50 botoes adicionando ao frame e o ActionListener (nao usado no momento)
         for (int i = 0; i < 50; i++) {
             botoes[i] = new JButton();
             botoes[i].addActionListener(this);
