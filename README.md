@@ -787,7 +787,7 @@ public class CampoDeBatalha extends JFrame implements ActionListener, KeyListene
     CampoDeBatalha() {
         campoBatalha.setLayout(new GridLayout(5, 10)); // Grade com 50
 
-        // Instancia 50 botoes adicionando ao frame e o ActionListener (nao usado no momento)
+        // Instancia 50 botoes adicionando ao frame e o ActionListener
         for (int i = 0; i < 50; i++) {
             botoes[i] = new JButton();
             botoes[i].addActionListener(this);
@@ -823,7 +823,7 @@ public class CampoDeBatalha extends JFrame implements ActionListener, KeyListene
     }
 
     private boolean posicaoNaoEstaLivre(int posicao){
-        // Garante que os inimigos nao fiquem na mesma posicao que o heroi ou entre si, ou entre armadilhas
+        // Garante que os inimigos nao fiquem na mesma posicao que o heroi ou entre si
         if (posicao == posicaoHeroi || posicao == posicaoChefao || posicoesInimigos.contains(posicao) || posicoesArmadilhasLeves.contains(posicao) || posicoesArmadilhasPesadas.contains(posicao)) {
             return true;
         }return false;
@@ -964,37 +964,31 @@ public class CampoDeBatalha extends JFrame implements ActionListener, KeyListene
 
     // Combate com chefao (nao feito) (provavelmente vai ter que ser em uma tela nova)
     private void combateChefao() {
-        JOptionPane.showMessageDialog(this, "O Herói encontrou um Inimigo! Começa a batalha!");
-
-        // Simula um combate simples
-        while (heroi.getHp() > 0 && vetorInimigos.get(posicoesInimigos.indexOf(posicaoHeroi)).getHp() > 0) {
-            InimigoBasico inimigo = vetorInimigos.get(posicoesInimigos.indexOf(posicaoHeroi));
-            inimigo.setHp(inimigo.getHp() - heroi.getAtk());
-            if (inimigo.getHp() > 0) {
-                heroi.setHp(heroi.getHp() - inimigo.getAtk());
-            }
-        }
-
-        if (heroi.getHp() > 0) {
-            JOptionPane.showMessageDialog(this, "O Herói derrotou o Inimigo!");
-            botoes[posicaoHeroi].setIcon(heroiIcon); // O heroi ocupa o lugar do inimigo derrotado
-        } else {
-            JOptionPane.showMessageDialog(this, "O Herói foi derrotado...");
-        }
-    }
-
-    // -1 de hp ao contato
-    private void danoArmadilhaPesada() {
-        System.out.println("hp antes da armadilha pesada " + heroi.getHp());
-        heroi.setHp(heroi.getHp() - aleatorio.nextInt(5));
-        System.out.printf("hp apos da armadilha pesada " + heroi.getHp() + "\n\n");
+        JOptionPane.showMessageDialog(this, "<VOCE ENCONTROU O CHEFAO> \n<PREPARE-SE PARA BATALHA>");
     }
 
     // -0 ate -5 de hp ao contato
+    private void danoArmadilhaPesada() {
+        int danoPorArmadilha = aleatorio.nextInt(5);
+
+        if (danoPorArmadilha == 0) {
+            JOptionPane.showMessageDialog(this, "Voce pisou em uma armadilha de urso, porem com muito cuidado conseguiu desarma-la\nTenha mais cuidado");    
+        } else {
+            heroi.setHp(heroi.getHp() - danoPorArmadilha);
+            JOptionPane.showMessageDialog(this, "Voce pisou em uma armadilha de urso, perdendo " + aleatorio.nextInt(5) + " pontos de vida\nTenha mais cuidado");
+        }
+
+        posicoesArmadilhasPesadas.remove(Integer.valueOf(posicaoHeroi)); // Remove a armdilha do vetor
+        botoes[posicaoHeroi].setIcon(heroiIcon); // Atualiza o icone do heroi
+    }
+
+    // -1 de hp ao contato    
     private void danoArmadilhaLeve() {
-        System.out.println("hp antes da armadilha leve " + heroi.getHp());
         heroi.setHp(heroi.getHp() - 1);
-        System.out.printf("hp apos da armadilha leve " + heroi.getHp() + "\n\n");
+        JOptionPane.showMessageDialog(this, "Voce bebeu tanto Whisky que acabou batendo em um cacto, perdendo 1 pontos de vida\nTa na hora de parar de beber");
+
+        posicoesArmadilhasLeves.remove(Integer.valueOf(posicaoHeroi)); // Remove a armdilha do vetor
+        botoes[posicaoHeroi].setIcon(heroiIcon); // Atualiza o icone do heroi
     }
 }
 ```
@@ -1006,78 +1000,79 @@ import java.awt.event.ActionListener;
 import java.util.Random;
 import javax.swing.*;
 
+
 public class JanelaCombate extends JFrame {
-    private Hero heroi;
-    private InimigoBasico inimigoAtual;
+    private Hero heroi;          
+    private InimigoBasico inimigoAtual; 
     private JLabel lblHeroHp, lblHeroAtk, lblHeroDef; // Labels para exibir stats do heroi
     private JLabel lblInimigoHp, lblInimigoAtk, lblInimigoDef; // Labels para exibir stats do inimigo
 
-    public JanelaCombate(Hero heroi, InimigoBasico inimigo) {
+
+    public JanelaCombate(Hero heroi, InimigoBasico inimigoAtual) {
         this.heroi = heroi;
-        this.inimigoAtual = inimigo;
+        this.inimigoAtual = inimigoAtual;
 
         // Caracteristicas da janela de combate
-        setTitle("Combate com " + inimigoAtual.getNome()); // Titulo
-        setSize(400, 300); // Dimensoes
-        setLayout(new GridLayout(5, 2)); // Formato
+        setTitle("Combate com " +  inimigoAtual.getNome());   // Titulo 
+        setSize(400, 300);                       // Dimensoes
+        setLayout(new GridLayout(5, 2));            // Formato
 
         // Inicializa os labels dos stats do heroi e do inimigo
         lblHeroHp = new JLabel("HP do Heroi: " + heroi.getHp());
         lblHeroAtk = new JLabel("Atk do Heroi: " + heroi.getAtk());
         lblHeroDef = new JLabel("Def do Heroi: " + heroi.getDef());
-        lblInimigoHp = new JLabel("HP do Inimigo: " + inimigo.getHp());
-        lblInimigoAtk = new JLabel("Atk do Inimigo: " + inimigo.getAtk());
-        lblInimigoDef = new JLabel("Def do Inimigo: " + inimigo.getDef());
+        lblInimigoHp = new JLabel("HP do Inimigo: " + inimigoAtual.getHp());
+        lblInimigoAtk = new JLabel("Atk do Inimigo: " + inimigoAtual.getAtk());
+        lblInimigoDef = new JLabel("Def do Inimigo: " + inimigoAtual.getDef());
 
         // Botao Atacar + ActionListener
         JButton botaoAtacar = new JButton("Atacar");
         botaoAtacar.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                combate();
+                combate(); 
             }
         });
 
         // Botao Beber Whisky + ActionListener
-        JButton botaoWhisky = new JButton("Beber Whisky");
+        JButton botaoWhisky  = new JButton("Beber Whisky");
         botaoWhisky.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                heroi.setHp(heroi.getHp() + 20); // Recupera 20 de HP, por exemplo
-                atualizarStatusDaTela(); // Atualiza a interface com o novo valor de HP
-                JOptionPane.showMessageDialog(null, "Você bebeu whisky e recuperou 20 HP!");
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            heroi.setHp(heroi.getHp() + 20); // Recupera 20 de HP, por exemplo
+            atualizarStatusDaTela(); // Atualiza a interface com o novo valor de HP
+            JOptionPane.showMessageDialog(null, "Você bebeu whisky e recuperou 20 de vida!");
             }
         });
 
         // Botao usarHabilidadeEspecial + ActionListener
-        JButton botaoHabilidadeEspecial = new JButton("Usar Habilidade Especial");
+        JButton botaoHabilidadeEspecial  = new JButton("Usar Habilidade Especial");
         botaoHabilidadeEspecial.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(null, "Você usou sua Habilidade Especial!");
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            JOptionPane.showMessageDialog(null, "Você usou sua Habilidade Especial!");
             }
         });
 
         // Botao botaFugir + ActionListener
-        JButton botaFugir = new JButton("Fugir");
+        JButton botaFugir  = new JButton("Fugir");
         botaFugir.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(null,
-                        "Você saiu correndo e acabou tropeçando, sofrendo 3 de dano no processo... seu covarde!");
-                heroi.setHp(heroi.getHp() - 3);
-                dispose(); // Fecha a janela de combate
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            JOptionPane.showMessageDialog(null, "Você saiu correndo e acabou tropeçando, sofrendo 3 de dano no processo... seu covarde!");
+            heroi.setHp(heroi.getHp() - 3);
+            dispose(); // Fecha a janela de combate
             }
         });
 
         // Adiciona os componentes na janela
         add(lblHeroHp);
         add(lblInimigoHp);
-        add(lblHeroAtk);
+        add(lblHeroAtk);      
         add(lblInimigoAtk);
         add(lblHeroDef);
         add(lblInimigoDef);
-        add(botaoAtacar);
+        add(botaoAtacar);     
         add(botaoWhisky);
         add(botaoHabilidadeEspecial);
         add(botaFugir);
@@ -1085,13 +1080,13 @@ public class JanelaCombate extends JFrame {
         // Mais caracteristicas da janela de combate
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // So fecha essa janela e nao toda o jogo
         setLocationRelativeTo(null); // Começa no centro
-        setFocusable(true); // Tira a 'sombra' do botao (tambem deve fazer mais alguma coisa que nao sei)
-        setVisible(true); // Visivel
+        setFocusable(true);  // Tira a 'sombra' do botao (tambem deve fazer mais alguma coisa que nao sei)
+        setVisible(true);            // Visivel
     }
 
     // Logica de combate
     private void combate() {
-
+        
         Random aleatorio = new Random();
 
         // Calculos para o combate
@@ -1102,29 +1097,30 @@ public class JanelaCombate extends JFrame {
         // Inimigo recebendo o ataque
         if (defTotal > atkTotal) {
             JOptionPane.showMessageDialog(this, "O inimigo defendou todo o seu ataque!!!");
-        } else {
-            JOptionPane.showMessageDialog(this, "Voce infligiu " + diferenca + " de dano.");
-            inimigoAtual.setHp((inimigoAtual.getHp() - diferenca)); // Atualiza a vida do inimigo
         }
-
+        else {
+            JOptionPane.showMessageDialog(this, "Voce infligiu " + diferenca + " de dano.");
+            inimigoAtual.setHp((inimigoAtual.getHp() - diferenca));  // Atualiza a vida do inimigo
+        }
+        
         // Se o inimigo nao estiver vido
         if (inimigoAtual.getHp() <= 0) {
-
+            
             int recompensaAleatoria = aleatorio.nextInt(3);
-
-            // Concede ao heroi um atributo aleatorio
+            
+            //  Concede ao heroi um atributo aleatorio
             switch (recompensaAleatoria) {
                 case 0:
                     heroi.setHp(heroi.getHp() + 1);
-                    JOptionPane.showMessageDialog(this, "Voce venceu a batalha e recebeu um ponto de HP");
+                    JOptionPane.showMessageDialog(this, "Voce venceu a batalha e recebeu +1 ponto de Vida");
                     break;
                 case 1:
                     heroi.setAtk(heroi.getAtk() + 1);
-                    JOptionPane.showMessageDialog(this, "Voce venceu a batalha e recebeu um ponto de Atk");
+                    JOptionPane.showMessageDialog(this, "Voce venceu a batalha e recebeu +1 ponto de Ataque");
                     break;
                 case 2:
                     heroi.setDef(heroi.getDef() + 1);
-                    JOptionPane.showMessageDialog(this, "Voce venceu a batalha e recebeu um ponto de Def");
+                    JOptionPane.showMessageDialog(this, "Voce venceu a batalha e recebeu +1 ponto de Defesa");
                     break;
                 default:
                     System.out.println("Erro dentro do switch!");
@@ -1140,9 +1136,10 @@ public class JanelaCombate extends JFrame {
             // Mesma logica de combate de antes mas agora com o heroi recebendo o ataque
             if (defTotal > atkTotal) {
                 JOptionPane.showMessageDialog(this, "Voce defendou completamente o ataque do inimigo!!!");
-            } else {
+            }
+            else {
                 JOptionPane.showMessageDialog(this, "Voce sofreu " + diferenca + " de dano.");
-                heroi.setHp((heroi.getHp() - diferenca)); // Atualiza a vida do inimigo
+                heroi.setHp((heroi.getHp() - diferenca));  // Atualiza a vida do inimigo
             }
         }
 
@@ -1158,8 +1155,8 @@ public class JanelaCombate extends JFrame {
 
     // Atualiza labels de HP na janela
     private void atualizarStatusDaTela() {
-        lblHeroHp.setText("HP do Heroi: " + heroi.getHp());
-        lblInimigoHp.setText("Hp do Inimigo: " + inimigoAtual.getHp());
+        lblHeroHp.setText("HP do Heroi: " + heroi.getHp());             
+        lblInimigoHp.setText("Hp do Inimigo: " + inimigoAtual.getHp()); 
     }
 }
 ```
