@@ -756,23 +756,22 @@ import javax.swing.*;
 
 public class CampoDeBatalha extends JFrame implements ActionListener, KeyListener {
 
+    private Hero heroi;
+
     JFrame campoBatalha = new JFrame();
     JButton[] botoes = new JButton[50];
     Random aleatorio = new Random();
-
-    // Instancia o heroi (tem que ser baseado na escolha do usuario) e tambem o chefao
-    Hero heroi = new Gunslinger(100, 15, 1);
-    BillyTheKid chefao = new BillyTheKid(100, 20, 10);
 
     // Posicoes
     int posicaoHeroi = aleatorio.nextInt(9);  // Posicao do heroi aleatoria da linha inicial
     int posicaoChefao = aleatorio.nextInt(40, 49);  // Posicao do chefao aleatoria da linha final
 
     // Criacao de vetores para posicoes e inimigos
-    ArrayList<InimigoBasico> vetorInimigos = new ArrayList<InimigoBasico>();
+    ArrayList<Inimigo> vetorInimigos = new ArrayList<Inimigo>();
     ArrayList<Integer> posicoesInimigos = new ArrayList<Integer>();
     ArrayList<Integer> posicoesArmadilhasLeves = new ArrayList<Integer>();
     ArrayList<Integer> posicoesArmadilhasPesadas = new ArrayList<Integer>();
+    ArrayList<Integer> posicoesWhiskey = new ArrayList<Integer>();
 
     // Imagens
     ImageIcon heroiIcon = new ImageIcon("imgs\\Outlaw.png");
@@ -781,10 +780,15 @@ public class CampoDeBatalha extends JFrame implements ActionListener, KeyListene
     ImageIcon billyIcon = new ImageIcon("imgs\\Billy.png");
     ImageIcon armadilhaPesadaIcon = new ImageIcon("imgs\\Beartrap.png");
     ImageIcon armadilhaLeveIcon = new ImageIcon("imgs\\Cacto.png");
+    ImageIcon whiskeyIcon = new ImageIcon("imgs\\whiskey.png");
+    
 
 
 
-    CampoDeBatalha() {
+    CampoDeBatalha(Hero heroi) {
+
+        this.heroi = heroi;
+
         campoBatalha.setLayout(new GridLayout(5, 10)); // Grade com 50
 
         // Instancia 50 botoes adicionando ao frame e o ActionListener
@@ -792,6 +796,7 @@ public class CampoDeBatalha extends JFrame implements ActionListener, KeyListene
             botoes[i] = new JButton();
             botoes[i].addActionListener(this);
             campoBatalha.add(botoes[i]);
+            
             // Deixa os botoes invisiveis (para colocar uma imagem de fundo)
             //botoes[i].setOpaque(false);
             //botoes[i].setContentAreaFilled(false);
@@ -818,15 +823,28 @@ public class CampoDeBatalha extends JFrame implements ActionListener, KeyListene
         distribuirArmadilhasLeves(3);
         distribuirIndios(3); 
         distribuirRogues(3);
+        distribuirWhiskey(4);
 
 
     }
 
     private boolean posicaoNaoEstaLivre(int posicao){
-        // Garante que os inimigos nao fiquem na mesma posicao que o heroi ou entre si
+        // Garante que os inimigos nao fiquem na mesma posicao que o heroi ou entre si, nem com as armdilhas
         if (posicao == posicaoHeroi || posicao == posicaoChefao || posicoesInimigos.contains(posicao) || posicoesArmadilhasLeves.contains(posicao) || posicoesArmadilhasPesadas.contains(posicao)) {
             return true;
         }return false;
+    }
+
+    private void distribuirWhiskey(int numWhiskey) {
+        for (int i = 0; i < numWhiskey; i++) {
+            int posicao;
+            do {
+                posicao = aleatorio.nextInt(50); // Gera uma posicao aleatoria entre 0 e 49
+            } while (posicaoNaoEstaLivre(posicao)); 
+
+            posicoesWhiskey.add(posicao);  // Adiciona a posicao ao vetor de posicoes
+            botoes[posicao].setIcon(whiskeyIcon);  // Define a imagem da armadilha no botão da posicao atual
+        }
     }
 
     private void distribuirArmadilhasPesadas(int numArmadilhas) {
@@ -860,7 +878,7 @@ public class CampoDeBatalha extends JFrame implements ActionListener, KeyListene
                 posicao = aleatorio.nextInt(50); // Gera uma posicao aleatoria entre 0 e 49
             } while (posicaoNaoEstaLivre(posicao)); 
 
-            InimigoBasico inimigo = new Indio("Indio " + (i + 1), 10, 2, 5); // Instancia os Indios
+            Inimigo inimigo = new Indio("Indio " + (i + 1), 10, 2, 5); // Instancia os Indios
             vetorInimigos.add(inimigo);     // Adiciona o inimigo ao vetor de inimigos
             posicoesInimigos.add(posicao);  // Adiciona a posicao ao vetor de posicoes
             botoes[posicao].setIcon(indioIcon); // Define a imagem do inimigo no botão da posicao atual
@@ -874,7 +892,7 @@ public class CampoDeBatalha extends JFrame implements ActionListener, KeyListene
                 posicao = aleatorio.nextInt(50); // Gera uma posicao aleatoria entre 0 e 49
             } while (posicaoNaoEstaLivre(posicao)); 
 
-            InimigoBasico inimigo = new Rogue("Rogue " + (i + 1), 10, 2, 5); // Instancia os rogues
+            Inimigo inimigo = new Rogue("Rogue " + (i + 1), 10, 2, 5); // Instancia os rogues
             vetorInimigos.add(inimigo);     // Adiciona o inimigo ao vetor de inimigos
             posicoesInimigos.add(posicao);  // Adiciona a posicao ao vetor de posicoes
             botoes[posicao].setIcon(rogueIcon); // Define a imagem do inimigo no botão da posicao atual
@@ -921,17 +939,19 @@ public class CampoDeBatalha extends JFrame implements ActionListener, KeyListene
         }
 
         // Interagi de acordo com o que o heroi entrou em contato
-        if (posicoesInimigos.contains(posicaoHeroi)) {
+        if (posicoesInimigos.contains(posicaoHeroi)) {           
             combateInimigoBasico();
-        } 
-        else if (posicaoChefao == posicaoHeroi) {
+        }else if (posicaoChefao == posicaoHeroi) {
             combateChefao();
-        } 
+        }
         else if (posicoesArmadilhasPesadas.contains(posicaoHeroi)) {
             danoArmadilhaPesada();
         } 
         else if (posicoesArmadilhasLeves.contains((posicaoHeroi))) {
             danoArmadilhaLeve();
+        }
+        else if (posicoesWhiskey.contains((posicaoHeroi))) {
+            adicionarWhiskey();
         }
         else {
             botoes[posicaoHeroi].setIcon(heroiIcon); // Caso contrario so atualiza a posicao do heroi com a imagem
@@ -953,7 +973,7 @@ public class CampoDeBatalha extends JFrame implements ActionListener, KeyListene
     private void combateInimigoBasico() {
 
         int indiceInimigoAtual = posicoesInimigos.indexOf(posicaoHeroi);  // Pega o indice do inimigo atual na lista
-        InimigoBasico inimigoAtual = vetorInimigos.get(indiceInimigoAtual); // Pega o mesmo inimigo que o heroi encontrou
+        Inimigo inimigoAtual = vetorInimigos.get(indiceInimigoAtual); // Pega o mesmo inimigo que o heroi encontrou
 
         new JanelaCombate(heroi, inimigoAtual); // Abre a nova janela de combate
 
@@ -964,7 +984,10 @@ public class CampoDeBatalha extends JFrame implements ActionListener, KeyListene
 
     // Combate com chefao (nao feito) (provavelmente vai ter que ser em uma tela nova)
     private void combateChefao() {
+        
         JOptionPane.showMessageDialog(this, "<VOCE ENCONTROU O CHEFAO> \n<PREPARE-SE PARA BATALHA>");
+        Inimigo chefao = new Chefao("Billy The Kid", 10, 20, 10); // Instancia o chefao
+        new JanelaCombate(heroi, chefao); // Abre a nova janela de combate
     }
 
     // -0 ate -5 de hp ao contato
@@ -990,6 +1013,14 @@ public class CampoDeBatalha extends JFrame implements ActionListener, KeyListene
         posicoesArmadilhasLeves.remove(Integer.valueOf(posicaoHeroi)); // Remove a armdilha do vetor
         botoes[posicaoHeroi].setIcon(heroiIcon); // Atualiza o icone do heroi
     }
+
+    private void adicionarWhiskey() {
+        JOptionPane.showMessageDialog(this, "Voce encontrou um Whiskey\nBeba com moderacao");
+        heroi.setNumWhiskey(heroi.getNumWhiskey() + 1);
+
+        posicoesWhiskey.remove(Integer.valueOf(posicaoHeroi)); // Remove o Whiskey do vetor
+        botoes[posicaoHeroi].setIcon(heroiIcon); // Atualiza o icone do heroi
+    }
 }
 ```
 ## JanelaCombate
@@ -1003,12 +1034,12 @@ import javax.swing.*;
 
 public class JanelaCombate extends JFrame {
     private Hero heroi;          
-    private InimigoBasico inimigoAtual; 
+    private Inimigo inimigoAtual; 
     private JLabel lblHeroHp, lblHeroAtk, lblHeroDef; // Labels para exibir stats do heroi
     private JLabel lblInimigoHp, lblInimigoAtk, lblInimigoDef; // Labels para exibir stats do inimigo
 
 
-    public JanelaCombate(Hero heroi, InimigoBasico inimigoAtual) {
+    public JanelaCombate(Hero heroi, Inimigo inimigoAtual) {
         this.heroi = heroi;
         this.inimigoAtual = inimigoAtual;
 
@@ -1037,31 +1068,37 @@ public class JanelaCombate extends JFrame {
         // Botao Beber Whisky + ActionListener
         JButton botaoWhisky  = new JButton("Beber Whisky");
         botaoWhisky.addActionListener(new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            heroi.setHp(heroi.getHp() + 20); // Recupera 20 de HP, por exemplo
-            atualizarStatusDaTela(); // Atualiza a interface com o novo valor de HP
-            JOptionPane.showMessageDialog(null, "Você bebeu whisky e recuperou 20 de vida!");
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                if (heroi.getNumWhiskey() == 0 ){
+                    JOptionPane.showMessageDialog(null, "Acabou o estoque camarada...");
+                }else {
+                    heroi.setHp(heroi.getHp() + 20); // Recupera 20 de HP, por exemplo
+                    heroi.setNumWhiskey(heroi.getNumWhiskey() - 1);
+                    atualizarStatusDaTela(); // Atualiza a interface com o novo valor de HP
+                    JOptionPane.showMessageDialog(null, "Voce bebeu whisky e recuperou 20 de vida!");
+                }    
             }
         });
 
         // Botao usarHabilidadeEspecial + ActionListener
         JButton botaoHabilidadeEspecial  = new JButton("Usar Habilidade Especial");
         botaoHabilidadeEspecial.addActionListener(new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            JOptionPane.showMessageDialog(null, "Você usou sua Habilidade Especial!");
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JOptionPane.showMessageDialog(null, "Voce usou sua Habilidade Especial!");
             }
         });
 
         // Botao botaFugir + ActionListener
         JButton botaFugir  = new JButton("Fugir");
         botaFugir.addActionListener(new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            JOptionPane.showMessageDialog(null, "Você saiu correndo e acabou tropeçando, sofrendo 3 de dano no processo... seu covarde!");
-            heroi.setHp(heroi.getHp() - 3);
-            dispose(); // Fecha a janela de combate
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JOptionPane.showMessageDialog(null, "Você saiu correndo e acabou tropeçando, sofrendo 3 de dano no processo... seu covarde!");
+                heroi.setHp(heroi.getHp() - 3);
+                dispose(); // Fecha a janela de combate
             }
         });
 
@@ -1106,8 +1143,15 @@ public class JanelaCombate extends JFrame {
         // Se o inimigo nao estiver vido
         if (inimigoAtual.getHp() <= 0) {
             
-            int recompensaAleatoria = aleatorio.nextInt(3);
-            
+            // Caso a luta tenha sido contra o chefao mostra mensagem de end game (precisa voltar para o menu inicial)
+            if (inimigoAtual instanceof Chefao) {
+                JOptionPane.showMessageDialog(this, "Parabens!!!");
+                dispose(); // Fecha a janela de combate
+                return;
+            }
+
+            int recompensaAleatoria = aleatorio.nextInt(3);           
+                        
             //  Concede ao heroi um atributo aleatorio
             switch (recompensaAleatoria) {
                 case 0:
@@ -1163,13 +1207,14 @@ public class JanelaCombate extends JFrame {
 
 ## Main
 ```java
-import javax.swing.*;
-
-public class Main {
-  public static void main(String[] args) {
-    Mwindows Mwindow = new Mwindows();
-    Mwindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    //new CampoDeBatalha();
-  }
+public class main {
+    public static void main(String[] args) {
+        System.out.println("here");
+        
+        //new Mwindows();
+        
+        Hero heroi = new Gunslinger(100, 15, 1);
+        new CampoDeBatalha(heroi);
+    }
 }
 ```
