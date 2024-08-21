@@ -347,12 +347,12 @@ class Field extends JFrame implements ActionListener, KeyListener {
 
     // Imagens
     ImageIcon heroiIcon;
-    ImageIcon indioIcon = new ImageIcon("imgs\\Indio.png");
-    ImageIcon rogueIcon = new ImageIcon("imgs\\Rogue.png");
-    ImageIcon billyIcon = new ImageIcon("imgs\\Billy.png");
-    ImageIcon armadilhaPesadaIcon = new ImageIcon("imgs\\Beartrap.png");
-    ImageIcon armadilhaLeveIcon = new ImageIcon("imgs\\Cactus.png");
-    ImageIcon whiskeyIcon = new ImageIcon("imgs\\whiskey.png");
+    ImageIcon indioIcon;
+    ImageIcon rogueIcon;
+    ImageIcon billyIcon;
+    ImageIcon armadilhaPesadaIcon;
+    ImageIcon armadilhaLeveIcon;
+    ImageIcon whiskeyIcon;
 
     //=============================================================================================
     public Field(Hero heroi, boolean visibilidade) {
@@ -360,7 +360,28 @@ class Field extends JFrame implements ActionListener, KeyListener {
         this.heroi = heroi;
         this.visibilidade = visibilidade;
 
+        // Tratando imagens
         heroiIcon = heroi.getPortrait();
+        indioIcon = new ImageIcon("imgs\\Indio.png");
+        rogueIcon = new ImageIcon("imgs\\Rogue.png");
+        billyIcon = new ImageIcon("imgs\\Billy.png");
+        armadilhaPesadaIcon = new ImageIcon("imgs\\Beartrap.png");
+        armadilhaLeveIcon = new ImageIcon("imgs\\Cactus.png");
+        whiskeyIcon = new ImageIcon("imgs\\whiskey.png");    
+
+        // Valida o caminho imagens
+        try {
+            verificarImagem(heroiIcon);
+            verificarImagem(indioIcon);
+            verificarImagem(rogueIcon);
+            verificarImagem(billyIcon);
+            verificarImagem(armadilhaPesadaIcon);
+            verificarImagem(armadilhaLeveIcon);
+            verificarImagem(whiskeyIcon);
+
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
         
         // icone de janela
         ImageIcon icon = new ImageIcon("imgs/WWC2icon.png");
@@ -494,11 +515,11 @@ class Field extends JFrame implements ActionListener, KeyListener {
         botoes[posicaoChefao].setIcon(billyIcon); // Define a imagem do chefao no botao
 
         // Cria e distribui inimigos e armadilhas pelo campo
-        distribuirArmadilhasPesadas(3, posicoesArmadilhasPesadasIniciais);
-        distribuirArmadilhasLeves(3, posicoesArmadilhasLevesIniciais);
-        distribuirIndios(3, posicoesInimigosIniciais);
-        distribuirRogues(3, posicoesInimigosIniciais);
-        distribuirWhiskey(4, posicoesWhiskeyIniciais);
+        distribuirArmadilhasPesadas(3);
+        distribuirArmadilhasLeves(3);
+        distribuirIndios(3);
+        distribuirRogues(3);
+        distribuirWhiskey(4);
         
     }
 
@@ -509,7 +530,7 @@ class Field extends JFrame implements ActionListener, KeyListener {
         if (e.getSource() == botaoDica) {
             if (limiteUsosDica == 0){
                 JOptionPane.showMessageDialog(this, "Limite de dicas alcancado!");
-                
+                battlefield.requestFocusInWindow(); // Atualiza o foco para o teclado, assim pode usar setas novamente apos clicar em um botao
             }else {                
                 if (verificarArmadilhasAoRedor()) {
                     limiteUsosDica--;
@@ -618,7 +639,7 @@ class Field extends JFrame implements ActionListener, KeyListener {
         }return false;
     }
 
-    private void distribuirWhiskey(int numWhiskey, ArrayList<Integer> listaInicial) {
+    private void distribuirWhiskey(int numWhiskey) {
         for (int i = 0; i < numWhiskey; i++) {
             int posicao;
             do {
@@ -626,7 +647,7 @@ class Field extends JFrame implements ActionListener, KeyListener {
             } while (posicaoNaoEstaLivre(posicao)); 
 
             posicoesWhiskey.add(posicao);  // Adiciona a posicao ao vetor de posicoes
-            listaInicial.add(posicao);    // Salva a posicao para usar no reiniciar jogo
+            posicoesWhiskeyIniciais.add(posicao);    // Salva a posicao para usar no reiniciar jogo
             
             // So atualiza o icone se modo new game
             if (visibilidade) {
@@ -635,7 +656,7 @@ class Field extends JFrame implements ActionListener, KeyListener {
         }
     }
 
-    private void distribuirArmadilhasPesadas(int numArmadilhas, ArrayList<Integer> listaInicial) {
+    private void distribuirArmadilhasPesadas(int numArmadilhas) {
         for (int i = 0; i < numArmadilhas; i++) {
             int posicao;
             do {
@@ -643,7 +664,7 @@ class Field extends JFrame implements ActionListener, KeyListener {
             } while (posicaoNaoEstaLivre(posicao)); 
 
             posicoesArmadilhasPesadas.add(posicao);  // Adiciona a posicao ao vetor de posicoes
-            listaInicial.add(posicao);    // Salva a posicao para usar no reiniciar jogo
+            posicoesArmadilhasPesadasIniciais.add(posicao);    // Salva a posicao para usar no reiniciar jogo
 
             // So atualiza o icone se modo new game
             if (visibilidade) {
@@ -652,7 +673,7 @@ class Field extends JFrame implements ActionListener, KeyListener {
         }
     }
 
-    private void distribuirArmadilhasLeves(int numArmadilhas, ArrayList<Integer> listaInicial) {
+    private void distribuirArmadilhasLeves(int numArmadilhas) {
         for (int i = 0; i < numArmadilhas; i++) {
             int posicao;
             do {
@@ -660,7 +681,7 @@ class Field extends JFrame implements ActionListener, KeyListener {
             } while (posicaoNaoEstaLivre(posicao)); 
 
             posicoesArmadilhasLeves.add(posicao);  // Adiciona a posicao ao vetor de posicoes
-            listaInicial.add(posicao);    // Salva a posicao para usar no reiniciar jogo
+            posicoesArmadilhasLevesIniciais.add(posicao);    // Salva a posicao para usar no reiniciar jogo
 
             // So atualiza o icone se modo new game
             if (visibilidade) {
@@ -670,7 +691,7 @@ class Field extends JFrame implements ActionListener, KeyListener {
         }
     }
 
-    private void distribuirIndios(int numInimigos, ArrayList<Integer> listaInicial) {
+    private void distribuirIndios(int numInimigos) {
         for (int i = 0; i < numInimigos; i++) {
             int posicao;
             do {
@@ -680,7 +701,7 @@ class Field extends JFrame implements ActionListener, KeyListener {
             Inimigo inimigo = new Indio("Indio " + (i + 1), 20, 3, 10); // Instancia os Indios
             vetorInimigos.add(inimigo);     // Adiciona o inimigo ao vetor de inimigos
             posicoesInimigos.add(posicao);  // Adiciona a posicao ao vetor de posicoes
-            listaInicial.add(posicao);    // Salva a posicao para usar no reiniciar jogo
+            posicoesInimigosIniciais.add(posicao);    // Salva a posicao para usar no reiniciar jogo
             vetorInimigosIniciais.add(inimigo);   // Salva o inimigo para usar no reiniciar jogo
             
             // So atualiza o icone se modo new game
@@ -691,7 +712,7 @@ class Field extends JFrame implements ActionListener, KeyListener {
         }
     }
 
-    private void distribuirRogues(int numInimigos, ArrayList<Integer> listaInicial) {
+    private void distribuirRogues(int numInimigos) {
         for (int i = 0; i < numInimigos; i++) {
             int posicao;
             do {
@@ -701,7 +722,7 @@ class Field extends JFrame implements ActionListener, KeyListener {
             Inimigo inimigo = new Rogue("Rogue " + (i + 1), 15, 12, 5); // Instancia os rogues
             vetorInimigos.add(inimigo);     // Adiciona o inimigo ao vetor de inimigos
             posicoesInimigos.add(posicao);  // Adiciona a posicao ao vetor de posicoes
-            listaInicial.add(posicao);    // Salva a posicao para usar no reiniciar jogo
+            posicoesInimigosIniciais.add(posicao);    // Salva a posicao para usar no reiniciar jogo
             vetorInimigosIniciais.add(inimigo);   // Salva o inimigo para usar no reiniciar jogo 
 
             if (visibilidade) {
@@ -996,12 +1017,23 @@ class Field extends JFrame implements ActionListener, KeyListener {
 
     
         // Reverte os status do heroi
-        heroi.setHp(heroi.getbaseHp()); 
-        heroi.setAtk(heroi.getbaseAtk());  
-        heroi.setDef(heroi.getbaseDef()); 
+        int hpAtual = heroi.getHp();
+        int atkAtual = heroi.getAtk();
+        int defAtual = heroi.getDef();
+
+        heroi.setHp(hpAtual); 
+        heroi.setAtk(atkAtual);  
+        heroi.setDef(defAtual); 
         heroi.setNumWhiskey(0);
+        limiteUsosDica = 3;
         updater();
     }    
+
+    private void verificarImagem(ImageIcon imagemAtual) throws IOException  {
+        if (imagemAtual.getImageLoadStatus() != MediaTracker.COMPLETE) {
+            throw new IOException("Imagem nao pode ser carregada corretamente");
+        }
+    }
 }
 ```
 
