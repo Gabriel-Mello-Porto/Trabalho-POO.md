@@ -323,6 +323,9 @@ class Field extends JFrame implements ActionListener, KeyListener {
     Random aleatorio = new Random();
     JButton botaoDica = new JButton();
     int limiteUsosDica = 3;
+    int hpAntesBatalhas;
+    int atkAntesBatalhas;
+    int defAntesBatalhas;
     
     // Posicoes
     int posicaoHeroi = aleatorio.nextInt(9);  // Posicao do heroi aleatoria da linha inicial
@@ -520,7 +523,11 @@ class Field extends JFrame implements ActionListener, KeyListener {
         distribuirIndios(3);
         distribuirRogues(3);
         distribuirWhiskey(4);
-        
+
+        hpAntesBatalhas = heroi.getHp();
+        atkAntesBatalhas = heroi.getAtk();
+        defAntesBatalhas = heroi.getDef();
+            
     }
 
     @Override
@@ -1017,13 +1024,9 @@ class Field extends JFrame implements ActionListener, KeyListener {
 
     
         // Reverte os status do heroi
-        int hpAtual = heroi.getHp();
-        int atkAtual = heroi.getAtk();
-        int defAtual = heroi.getDef();
-
-        heroi.setHp(hpAtual); 
-        heroi.setAtk(atkAtual);  
-        heroi.setDef(defAtual); 
+        heroi.setHp(hpAntesBatalhas); 
+        heroi.setAtk(atkAntesBatalhas);  
+        heroi.setDef(defAntesBatalhas); 
         heroi.setNumWhiskey(0);
         limiteUsosDica = 3;
         updater();
