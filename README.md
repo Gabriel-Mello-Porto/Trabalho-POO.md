@@ -342,7 +342,9 @@ class Field extends JFrame implements ActionListener, KeyListener {
     // Criacao de vetores para armazenar as posicoes iniciais (botao resetar)
     private int posicaoInicialHeroi = posicaoHeroi;
     private int posicaoInicialChefao = posicaoChefao;
+
     ArrayList<Inimigo> vetorInimigosIniciais = new ArrayList<Inimigo>();
+    
     private ArrayList<Integer> posicoesInimigosIniciais = new ArrayList<>();
     private ArrayList<Integer> posicoesArmadilhasLevesIniciais = new ArrayList<>();
     private ArrayList<Integer> posicoesArmadilhasPesadasIniciais = new ArrayList<>();
@@ -437,7 +439,7 @@ class Field extends JFrame implements ActionListener, KeyListener {
 
         // carregando fundos
         battleground_img = new ImageIcon("imgs/Fieldsml.png").getImage();
-        wooden_img = new ImageIcon("imgs/depth.png").getImage();
+        wooden_img = new ImageIcon("imgs/depth2.png").getImage();
 
         // painel de madeira
         JPanel Woodenpanel = new ImagePanel(wooden_img, 1280, 720);
@@ -705,7 +707,7 @@ class Field extends JFrame implements ActionListener, KeyListener {
                 posicao = aleatorio.nextInt(50); // Gera uma posicao aleatoria entre 0 e 49
             } while (posicaoNaoEstaLivre(posicao)); 
 
-            Inimigo inimigo = new Indio("Indio " + (i + 1), 20, 3, 10); // Instancia os Indios
+            Inimigo inimigo = new Indio("Indio " + (i + 1), 20, 5, 7); // Instancia os Indios
             vetorInimigos.add(inimigo);     // Adiciona o inimigo ao vetor de inimigos
             posicoesInimigos.add(posicao);  // Adiciona a posicao ao vetor de posicoes
             posicoesInimigosIniciais.add(posicao);    // Salva a posicao para usar no reiniciar jogo
@@ -1052,9 +1054,9 @@ class Gunslinger extends Hero {
     Gunslinger(String nome, int hp, int atk, int def, int numWhiskey){
         super(nome, hp, atk, def, numWhiskey);
 
-        setbaseHp(13);
-        setbaseAtk(2);
-        setbaseDef(6);
+        setbaseHp(17);
+        setbaseAtk(7);
+        setbaseDef(3);
     }
 
 
@@ -1187,7 +1189,10 @@ class Hscreen extends JFrame implements ActionListener {
     private JButton Bgunslinger;
     private JButton Boutlaw;
     private JButton Bsheriff;
+
     private boolean escolhaModoJogo;
+
+    private JLabel lblgunslinger,lbloutlaw,lblsheriff;
 
     // icones
     ImageIcon gunslingerIcon;
@@ -1199,7 +1204,7 @@ class Hscreen extends JFrame implements ActionListener {
         this.escolhaModoJogo = escolhaModoJogo;
 
         // icone da janale
-        ImageIcon icon = new ImageIcon("imgs/WWC2icon.png");
+        ImageIcon icon = new ImageIcon("imgs\\WWC2icon.png");
         setIconImage(icon.getImage());
 
         Container tela = getContentPane();
@@ -1211,10 +1216,10 @@ class Hscreen extends JFrame implements ActionListener {
         Dimension buttonSize = new Dimension(148, 202);
 
         // escalar as imagens
-        gunslingerIcon = scaleImageIcon(new ImageIcon("imgs/gunslingerbaner.png"), buttonSize.width,
+        gunslingerIcon = scaleImageIcon(new ImageIcon("imgs\\gunslingerbaner.png"), buttonSize.width,
                 buttonSize.height);
-        outlawIcon = scaleImageIcon(new ImageIcon("imgs/outlawbaner.png"), buttonSize.width, buttonSize.height);
-        sheriffIcon = scaleImageIcon(new ImageIcon("imgs/sheriffbaner.png"), buttonSize.width, buttonSize.height);
+        outlawIcon = scaleImageIcon(new ImageIcon("imgs\\outlawbaner.png"), buttonSize.width, buttonSize.height);
+        sheriffIcon = scaleImageIcon(new ImageIcon("imgs\\sheriffbaner.png"), buttonSize.width, buttonSize.height);
 
         // botões ja re-escalados
         Bgunslinger = new JButton(gunslingerIcon);
@@ -1240,7 +1245,29 @@ class Hscreen extends JFrame implements ActionListener {
         Bsheriff.addActionListener(this);
 
         // imagem de fundo
-        Hselect backimg = new Hselect("imgs/HSelectinfo.png");
+        Hselect backimg = new Hselect("imgs\\HSelectinfo2.png");
+
+        //info de personagens
+        lblgunslinger= new JLabel("Gunslinger");
+        lblgunslinger.setForeground(Color.BLACK);
+        lblgunslinger.setFont(new Font("Arial", Font.BOLD, 15));
+        lbloutlaw= new JLabel("Outlaw");
+        lbloutlaw.setForeground(Color.BLACK);
+        lbloutlaw.setFont(new Font("Arial", Font.BOLD, 15));
+        lblsheriff= new JLabel("Sheriff");
+        lblsheriff.setForeground(Color.BLACK);
+        lblsheriff.setFont(new Font("Arial", Font.BOLD, 15));
+
+        JPanel infopanel= new JPanel (new FlowLayout(FlowLayout.CENTER, 10,10));
+        infopanel.setOpaque(false);
+        infopanel.add(lblgunslinger);
+        infopanel.add(Box.createHorizontalStrut(70));
+        infopanel.add(lbloutlaw);
+        infopanel.add(Box.createHorizontalStrut(80));
+        infopanel.add(lblsheriff);
+        infopanel.setBounds(190,10,400,400);
+        infopanel.setForeground(Color.BLACK);
+
 
         // painel de botões
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
@@ -1249,6 +1276,7 @@ class Hscreen extends JFrame implements ActionListener {
         buttonPanel.add(Bgunslinger);
         buttonPanel.add(Boutlaw);
         buttonPanel.add(Bsheriff);
+        buttonPanel.setBounds(100, 20, 600, 400);
 
         // labels
         JLabel Lgunslinger = new JLabel(
@@ -1267,16 +1295,19 @@ class Hscreen extends JFrame implements ActionListener {
         JPanel labelPanel = new JPanel();
         labelPanel.setLayout(new BoxLayout(labelPanel, BoxLayout.Y_AXIS));
         labelPanel.setOpaque(false);
-        labelPanel.setBorder(new EmptyBorder(60, 180, 0, 0)); // Espaço para baixo e direita
+        labelPanel.setBorder(new EmptyBorder(60, 180, 0, 0));// Espaço para baixo e direita
         labelPanel.add(Lgunslinger);
         labelPanel.add(Box.createRigidArea(new Dimension(0, 10))); // espaço entre as labels
         labelPanel.add(Loutlaw);
         labelPanel.add(Box.createRigidArea(new Dimension(0, 10))); // espaço entre as labels
         labelPanel.add(Lsheriff);
+        labelPanel.setBounds(0,250,800,400);
 
-        backimg.setLayout(new BorderLayout());
+
+        backimg.setLayout(null);
         backimg.add(buttonPanel, BorderLayout.NORTH);
         backimg.add(labelPanel, BorderLayout.CENTER);
+        backimg.add(infopanel);
 
         // adicionando info
         tela.add(backimg, BorderLayout.CENTER);
@@ -1287,28 +1318,28 @@ class Hscreen extends JFrame implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent action) {
         if (action.getSource() == Bgunslinger) {
-            
-            Gunslinger gunslinger = new Gunslinger("Gunslinger", 25, 15, 8, 0);
+
+            Gunslinger gunslinger = new Gunslinger("Gunslinger", 17, 7, 3, 0);
             ChScreen chScreen = new ChScreen(gunslinger, escolhaModoJogo);
             chScreen.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             dispose();
-            
+
         }
         if (action.getSource() == Boutlaw) {
 
-            Outlaw outlaw = new Outlaw("Outlaw", 7, 5, 0, 0);
+            Outlaw outlaw = new Outlaw("Outlaw", 12, 12, 2, 0);
             ChScreen chScreen = new ChScreen(outlaw, escolhaModoJogo);
             chScreen.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             dispose();
-            
+
         }
         if (action.getSource() == Bsheriff) {
 
-            Sheriff sheriff = new Sheriff("Sheriff", 13, 2, 6, 0);
+            Sheriff sheriff = new Sheriff("Sheriff", 21, 7, 6, 0);
             ChScreen chScreen = new ChScreen(sheriff, escolhaModoJogo);
             chScreen.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             dispose();
-            
+
         }
     }
 
@@ -1332,7 +1363,7 @@ class Hselect extends JPanel {
 
 
     public Hselect(String imagePath) {
-        backgroundImage = new ImageIcon("imgs/HSelectinfo.png").getImage();
+        backgroundImage = new ImageIcon("imgs/HSelectinfo2.png").getImage();
     }
 
     @Override
@@ -1341,6 +1372,32 @@ class Hselect extends JPanel {
         // Imagem de fundo
         g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
     }
+}
+```
+
+## ImagePanel.java
+
+```java
+import java.awt.*;
+import javax.swing.*;
+
+class ImagePanel extends JPanel {
+    private Image image;
+    private int x, y;
+
+    public ImagePanel(Image image, int x, int y) {
+        this.image = image;
+        this.x = x;
+        this.y = y;
+        setPreferredSize(new Dimension(x, y));
+    }
+
+     @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            // Imagem de fundo
+            g.drawImage(image, 0, 0, getWidth(), getHeight(), this);
+        }
 }
 ```
 
@@ -1825,9 +1882,9 @@ class Outlaw extends Hero {
     Outlaw(String nome, int hp, int atk, int def, int numWhiskey){
         super(nome, hp, atk, def, numWhiskey);
 
-        setbaseHp(13);
-        setbaseAtk(2);
-        setbaseDef(6);
+        setbaseHp(12);
+        setbaseAtk(12);
+        setbaseDef(2);
     }
 
     // skill
@@ -1873,8 +1930,8 @@ class Sheriff extends Hero{
     Sheriff(String nome, int hp, int atk, int def, int numWhiskey){
         super(nome, hp, atk, def, numWhiskey);
 
-        setbaseHp(13);
-        setbaseAtk(2);
+        setbaseHp(21);
+        setbaseAtk(7);
         setbaseDef(6);
     }
 
@@ -1890,3 +1947,31 @@ class Sheriff extends Hero{
     }
 }
 ```
+
+## victory.java
+
+```java
+import javax.swing.*;
+
+class victory extends JDialog{
+
+  ImageIcon img;
+  JButton back, sair;
+
+  public victory(JFrame parent, String title, String path){
+    super(parent, title, true);
+
+    img= new ImageIcon(path);
+    
+    setSize(800, 480);
+    setLocationRelativeTo(parent);;
+    setLayout(null);
+
+    JLabel ImageLabel= new JLabel(img);
+    ImageLabel.setBounds(0, 0, 800, 480);
+    add(ImageLabel);
+
+    
+  }
+}
+``` 
