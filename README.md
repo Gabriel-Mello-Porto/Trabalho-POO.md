@@ -1503,6 +1503,11 @@ public class JanelaCombate extends JFrame {
     int defTotal = 0;
     int diferenca = 0;
 
+    //=========================UI=========================
+    private Image background_img;
+
+    //=========================UI=========================
+
 
     public JanelaCombate(Hero heroi, Inimigo inimigoAtual) {
         this.heroi = heroi;
@@ -1510,8 +1515,11 @@ public class JanelaCombate extends JFrame {
 
         // Caracteristicas da janela de combate
         setTitle("Combate com " +  inimigoAtual.getNome());   // Titulo 
-        setSize(400, 300);                       // Dimensoes
-        setLayout(new GridLayout(5, 2));            // Formato
+        setSize(816, 519);                       // Dimensoes
+        setLayout(null);
+        ImageIcon icon = new ImageIcon("imgs\\WWC2icon.png");
+        setIconImage(icon.getImage());
+
 
         // Inicializa os labels dos stats do heroi e do inimigo
         lblHeroHp = new JLabel("HP do Heroi: " + heroi.getHp());
@@ -1531,7 +1539,7 @@ public class JanelaCombate extends JFrame {
         });
 
         // Botao Beber Whisky + ActionListener
-        JButton botaoWhisky  = new JButton("Beber Whisky");
+        JButton botaoWhisky  = new JButton("Beber");
         botaoWhisky.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -1541,16 +1549,16 @@ public class JanelaCombate extends JFrame {
                 }else {
                     heroi.setHp(heroi.getHp() + 20); // Recupera 20 de HP, por exemplo
                     heroi.setNumWhiskey(heroi.getNumWhiskey() - 1);
-                    atualizarStatusDaTela(); // Atualiza a interface com o novo valor de HP
+                    atualizarStatusDafundo(); // Atualiza a interface com o novo valor de HP
                     JOptionPane.showMessageDialog(null, "Voce bebeu whisky e recuperou 20 de vida!");
                 }    
             }
         });
 
         // Botao usarHabilidadeEspecial + ActionListener
-        JButton botaoHabilidadeEspecial  = new JButton("Usar Habilidade Especial");
+        JButton botaoHabilidadeEspecial  = new JButton("Habilidade");
         botaoHabilidadeEspecial.addActionListener(new ActionListener() {
-            
+
             @Override
             public void actionPerformed(ActionEvent e) {
 
@@ -1585,17 +1593,72 @@ public class JanelaCombate extends JFrame {
             }
         });
 
-        // Adiciona os componentes na janela
-        add(lblHeroHp);
-        add(lblInimigoHp);
-        add(lblHeroAtk);      
-        add(lblInimigoAtk);
-        add(lblHeroDef);
-        add(lblInimigoDef);
-        add(botaoAtacar);     
-        add(botaoWhisky);
-        add(botaoHabilidadeEspecial);
-        add(botaoFugir);
+//==================================================================
+        
+     background_img = new ImageIcon("imgs\\duel_screen.png").getImage();
+        ImagePanel fundo = new ImagePanel(background_img, 800, 480);
+        fundo.setBounds(0, 0, 800, 480);
+        fundo.setLayout(null); // Set layout to null for absolute positioning
+        add(fundo);
+
+    JPanel combatgrid= new JPanel(new GridLayout(2,2));
+        combatgrid.setOpaque(false);
+        combatgrid.add(botaoAtacar);
+        combatgrid.add(botaoFugir);
+        combatgrid.add(botaoWhisky);
+        combatgrid.add(botaoHabilidadeEspecial);
+        combatgrid.setBounds(300, 338, 200, 130);
+
+    JLabel heroname= new JLabel(heroi.getNome());
+        heroname.setOpaque(false);
+        heroname.setBounds(100, 20, 100, 20);
+        heroname.setForeground(Color.BLACK);
+
+    JLabel enemyname= new JLabel(inimigoAtual.getNome());
+        enemyname.setOpaque(false);
+        enemyname.setBounds(635, 20, 100, 20);
+        enemyname.setForeground(Color.BLACK);
+
+    ImageIcon heroicon=scaleImageIcon(heroi.getPortrait(),200,200);
+    ImageIcon enemyicon=scaleImageIcon(inimigoAtual.getPortrait(),200,200);
+
+        JPanel pictures= new JPanel(new GridLayout(1,2));
+        pictures.setOpaque(false);
+        pictures.add(new JLabel(heroicon));
+        pictures.add(Box.createHorizontalStrut(250));
+        pictures.add(new JLabel(enemyicon));
+        pictures.setBounds(0,70,800,200);
+
+    JPanel hero_stats= new JPanel(new FlowLayout(FlowLayout.CENTER,10,20));
+        hero_stats.setOpaque(false);
+        hero_stats.add(lblHeroHp);
+        hero_stats.add(lblHeroAtk);
+        hero_stats.add(lblHeroDef);
+        hero_stats.setBounds(80,340,130,200);
+        hero_stats.setForeground(Color.BLACK);
+
+    JPanel enemy_stats= new JPanel(new FlowLayout(FlowLayout.CENTER, 10,20));
+        enemy_stats.setOpaque(false);
+        enemy_stats.add(lblInimigoHp);
+        enemy_stats.add(lblInimigoAtk);
+        enemy_stats.add(lblInimigoDef);
+        enemy_stats.setBounds(600,340,130,200);
+        enemy_stats.setForeground(Color.BLACK);
+
+//==================================================================
+
+        fundo.add(combatgrid);
+        fundo.add(heroname);
+        fundo.add(enemyname);
+        fundo.add(pictures);
+        fundo.add(hero_stats);
+        fundo.add(enemy_stats);   
+
+
+        add(fundo);
+
+
+
 
         // Mais caracteristicas da janela de combate
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // So fecha essa janela e nao toda o jogo
@@ -1623,10 +1686,10 @@ public class JanelaCombate extends JFrame {
                 // Pula o turno do inimigo
                 diferenca = calcularDiferencaHeroi();
                 realizarCombateHeroiAtacando(atkTotal, defTotal, diferenca);
-                
+
                 JOptionPane.showMessageDialog(this, "Voce desviou do ataque do inimigo");
                 habilidadeEspecialAtiva = false;
-                
+
                 // Caso inimigo tenha morrido
                 if (inimigoAtual.getHp() <= 0) {
                     // Caso a luta tenha sido contra o chefao mostra mensagem de end game (VOLTAR PARA MENU INICIAL)
@@ -1638,8 +1701,8 @@ public class JanelaCombate extends JFrame {
                         adicionarAtributoAleatorio();
                     }
                 }
-        
-                atualizarStatusDaTela();
+
+                atualizarStatusDafundo();
                 return;
             }
 
@@ -1655,18 +1718,42 @@ public class JanelaCombate extends JFrame {
             realizarCombateHeroiAtacando(atkTotal, defTotal, diferenca);
         }
 
-        
+
 
 
         // Caso inimigo tenha morrido
         if (inimigoAtual.getHp() <= 0) {
             // Caso a luta tenha sido contra o chefao mostra mensagem de end game (VOLTAR PARA MENU INICIAL)
             if (inimigoAtual instanceof Chefao) {
-                JOptionPane.showMessageDialog(this, "O inimigo final cai ao seus pes");
-                JOptionPane.showMessageDialog(this, "Parabens pela sua vitoria!!!");
-                new Mwindows();
-                dispose(); // Fecha a janela de combate
-                return;
+                    if(heroi instanceof Gunslinger){
+                        JOptionPane.showMessageDialog(this, "O inimigo final cai ao seus pes");
+                        JOptionPane.showMessageDialog(this, "Parabens pela sua vitoria!!!");
+                        
+                        victory winner= new victory(this, "Vitória do Gunsliner","imgs\\Gunslinger_win.png" );
+                        winner.setVisible(true);
+                        new Mwindows();
+                        dispose(); // Fecha a janela de combate
+                        return;
+                    }
+                else if(heroi instanceof Outlaw){
+                    JOptionPane.showMessageDialog(this, "O inimigo final cai ao seus pes");
+                    JOptionPane.showMessageDialog(this, "Parabens pela sua vitoria!!!");
+                    victory out_winner= new victory(this, "Vitória do Outlaw","imgs\\outlaw_win.png");
+                    out_winner.setVisible(true);
+                    new Mwindows();
+                    dispose(); // Fecha a janela de combate
+                    return;
+                    
+                }else if(heroi instanceof Sheriff){
+                    JOptionPane.showMessageDialog(this, "O inimigo final cai ao seus pes");
+                    JOptionPane.showMessageDialog(this, "Parabens pela sua vitoria!!!");
+                        victory sher_win= new victory(this, "Vitória do Sheriff","imgs\\sheriff_win.png");
+                    sher_win.setVisible(true);
+                    new Mwindows();
+                    dispose(); // Fecha a janela de combate
+                    return;
+                }
+
             } else {
                 adicionarAtributoAleatorio();
             }
@@ -1689,16 +1776,16 @@ public class JanelaCombate extends JFrame {
 
 
 
-        
+
         // Caso o heroi tenha morrido (VOLTAR PARA MENU INICIAL)
         if (heroi.getHp() <= 0) {
-            JOptionPane.showMessageDialog(this, "Seu HP chegou em 0, voce perdeu!\n                       :(");
+            JOptionPane.showMessageDialog(this, "Seu HP chegou em 0, O ceifador conseguiu sua alma\n");
             new Mwindows();
             dispose(); // Fecha a janela de combate
         }
 
-        // Refresh na tela de status
-        atualizarStatusDaTela();
+        // Refresh na fundo de status
+        atualizarStatusDafundo();
     }
 
     private void realizarCombateHeroiAtacando(int atkTotal, int defTotal, int diferenca) {
@@ -1740,8 +1827,8 @@ public class JanelaCombate extends JFrame {
         //  Concede ao heroi um atributo aleatorio
         switch (recompensaAleatoria) {
             case 0:
-                heroi.setHp(heroi.getHp() + 1);
-                JOptionPane.showMessageDialog(this, "Voce venceu a batalha e recebeu +1 ponto de Vida");
+                heroi.setHp(heroi.getHp() + 15);
+                JOptionPane.showMessageDialog(this, "Voce venceu a batalha e recebeu +15 pontos de Vida");
                 break;
             case 1:
                 heroi.setAtk(heroi.getAtk() + 1);
@@ -1764,9 +1851,15 @@ public class JanelaCombate extends JFrame {
     }
 
     // Atualiza labels de HP na janela
-    private void atualizarStatusDaTela() {
+    private void atualizarStatusDafundo() {
         lblHeroHp.setText("HP do Heroi: " + heroi.getHp());             
         lblInimigoHp.setText("HP do Inimigo: " + inimigoAtual.getHp()); 
+    }
+
+    private ImageIcon scaleImageIcon(ImageIcon icon, int x, int y) {
+        Image img = icon.getImage();
+        Image scaledImg = img.getScaledInstance(x, y, Image.SCALE_SMOOTH);
+        return new ImageIcon(scaledImg);
     }
 
 }
@@ -1776,15 +1869,7 @@ public class JanelaCombate extends JFrame {
 ```java
 public class main {
     public static void main(String[] args) {        
-        
         new Mwindows();
-
-        Hero heroi1 = new Gunslinger("Gunslinger", 100, 15, 1, 0);
-        Hero heroi2 = new Outlaw("Outlaw", 1000, 1000, 1, 0);
-        Hero heroi3 = new Sheriff("Sheriff", 100, 15, 1, 0);
-        
-        //new Field(heroi2, true);
-
     }
 }
 ```
@@ -1811,6 +1896,7 @@ class Mwindows extends JFrame implements ActionListener {
     Container tela = getContentPane();
     setSize(800, 480);
     setLayout(new BorderLayout());
+    setFocusable(true);
     setLocationRelativeTo(null);
 
     // botões
@@ -1923,7 +2009,7 @@ public class Rogue extends Inimigo {
 ```java
 import javax.swing.*;
 
-class Sheriff extends Hero{
+class Sheriff extends Hero {
 
     ImageIcon portrait = new ImageIcon("imgs/Sheriff.png");
       
